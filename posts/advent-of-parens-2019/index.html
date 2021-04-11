@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: Advent Of Parens 2019 - feast on Clojure this holiday season</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/advent-of-parens-2019/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">1 December 2019</div>
+        
+    </div>
+    <h2>Advent Of Parens 2019 - feast on Clojure this holiday season</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+    <img class="topic" src="/blog/images/clojure-logo-name.png" alt="clojure logo" />
+    
+</div>
+<div>
+    
+    <p><!&ndash; GitHub issue:  &ndash;> <!&ndash; https://github.com/practicalli/blog-content/issues/34 &ndash;></p><p>The holiday season is know for over indulge, so why not stuff your head full of Clojure and functional programming.  Its far healthier than the alternatives :)</p><p>To help you indulge, <a href='https://lambdaisland.com/blog/2019-11-25-advent-of-parens'>Arne from LambdaIsland</a>, <a href='https://porkostomus.gitlab.io/'>Bobby Towers</a>, <a href='https://alexanderoloo.com/'>Alexander Oloo</a> and I are writing a blog post each day as part of the Advent Of Parens 2019 celebration.  Every day we plan to publish a short posts that share tips and experiences with functional programming and Clojure.</p><p>You can find the articles I am planning to write on the <a href='https://github.com/practicalli/blog-content/projects/1?card_filter_query=label%3Aadvent-of-parens'>practicalli blog project board</a>.</p><p>While you wait to open these posts each day of December, I am kickstarting your feast of Clojure in this article.</p><p>I also encourage you to take some time over the holiday season to practice Clojure</p><ul><li><a href='/blog/posts/clojure-advent-of-code-2019/'>Clojure Advent of Code</a></li><li><a href='https://www.youtube.com/watch?v=MZcuL4lRw5E&list=PLpr9V-R8ZxiDjyU7cQYWOEFBDR1t7t0wv'>Practicalli Clojure study group</a></li></ul><p><!&ndash; more &ndash;></p><p><div style="float: right"> <a href='https://www.youtube.com/user/ClojureTV'><img src="https://clojure.org/images/clojuretv.png" alt="Clojure TV - years worth of videos from Clojure conj conference" title= | width=180 /></a> </div></p><h2 id="discover&#95;new&#95;ideas&#95;with&#95;clojure&#95;videos">Discover new ideas with Clojure videos</h2><p><a href='https://www.youtube.com/user/ClojureTV'>Clojure TV YouTube channel</a> has hundreds of videos from Clojure Conj conferences over the last 6 years.  Some of my favourites include</p><ul><li><a href='https://www.youtube.com/watch?v=MnvtPzEH-d8&list=PLZdCLR02grLqSy15ALLAZDU6LGpAJDrAQ'>Follow the Data: Product Development in Clojure - Derek Troy-West</a></li><li><a href='https://www.youtube.com/watch?v=U99UHYUW63k&list=PLZdCLR02grLqSy15ALLAZDU6LGpAJDrAQ&index=5'>From Lazy Lisper to Confident Clojurist - Alexander Oloo</a></li><li><a href='https://www.youtube.com/watch?v=m0rSJ9xdsdk&list=PLZdCLR02grLqSy15ALLAZDU6LGpAJDrAQ&index=10'>Interactive Programming for Artificial Intelligence - Dragan Djuric</a></li><li><a href='https://www.youtube.com/watch?v=OUZZKtypink&list=PLZdCLR02grLqSy15ALLAZDU6LGpAJDrAQ&index=11'>Sherlock Holmes, Consulting Developer - Stuart Halloway</a></li></ul><p>Or just sit back and watch <a href='https://www.youtube.com/watch?v=MnvtPzEH-d8&list=PLZdCLR02grLqSy15ALLAZDU6LGpAJDrAQ'>all the amazing Clojure/conj 2019 talks</a> back to back</p><blockquote><p> <a href='https://www.youtube.com/channel/UCbZW8yCqEncYciie8_1yy7w'>reClojure conference videos</a> will be available soon, subscribe to find out when the are published </p></blockquote><p><div style="float: right"> <a href='https://practicalli.github.io/'><img src="/blog/images/practicalli-banner-icons-full-horizontal.png" alt="Practicalli Clojure Study group" title= | width=320 /></a> </div></p><h2 id="studying&#95;clojure">Studying Clojure</h2><p>For the last year I have run a YouTube based study and there are over 50 hours of video,  introducing Clojure concepts and building applications with Clojure and ClojureScript.</p><p>See the Clojure Study group playlist for all the videos.  I am currently creating videos to introduce Clojure CLI and tools.deps approach to Clojure and ClojureScript projects.</p><p>TODO create a playlist for just the 4Clojure solutions</p><p>start learning Clojure CLI and tools.deps approach for Clojure</p><blockquote><p> Discuss any of the content that Practicalli creates on the <a href='https://clojurians.slack.com/messages/practicalli'>#practicalli channel of the Clojurians Slack community</a>. </p></blockquote><p>There are several excellent professional courses and tutorials available to help you deep dive into specific areas.  Take some time out and learn something new for the new year.</p><ul><li><a href='https://lambdaisland.com/blog/2019-11-25-advent-of-parens'>Lambda Island</a> - high quality and effective video tutorials on Clojure, with detailed transcripts</li><li><a href='https://purelyfunctional.tv/'>Purelyfunctional.tv</a> - comprehensive training courses for Clojure</li><li><a href='https://www.learnreframe.com/'>Learn re-frame</a> - a detailed video-based course from an experienced JavaScript & ClojureScript developer, Jacek Schae</li></ul><h2 id="cool&#95;projects&#95;to&#95;try&#95;out">Cool projects to try out</h2><p><a href='https://github.com/porkostomus/mecca-pix'>Bobby Towers</a> has some excellent projects that are very creative and inspiring projects, so great fun for all over the holiday season.</p><ul><li>Games: Conways Game of Life, Sudoku, Minesweeper, Tic-tac on my toe</li><li>Music: <a href='https://github.com/porkostomus/mecca-pix'>MECCA Music Platform</a>, Exploring MIDI files,</li><li>Graphics: <a href='https://github.com/porkostomus/mecca-pix'>Convert images into SVG</a></li></ul><p><a href='https://github.com/borkdude'>Michiel Borkent</a> has been a prolific developer in the Clojure community, creating many excellent projects this year.  It is definitely worth investing a little time getting to know these projects</p><ul><li><a href='https://github.com/borkdude/re-find'>re-find</a> - to find a function based on arguments and expected return value.  Try the <a href='https://borkdude.github.io/re-find.web/'>re-find website</a> too.</li><li>clj-kondo - my favourite Clojure lint tool that can be used interactively in your editor or as a script in a CI or other batch process.</li><li><a href='https://github.com/borkdude/jet'>jet</a> - a command line tool to transform between JSON, EDN and Transit</li><li><a href='https://github.com/borkdude/babashka'>babashka</a> - when you want to write Clojure rather than a bash script</li></ul><h2 id="clojure&#95;podcasts">Clojure podcasts</h2><p>There are many engaging discussions on Clojure and functional programming in the following podcasts.</p><ul><li><a href='https://www.youtube.com/channel/UC1UxEQuBvfLJgWR5tk_XIXA'>Apropos cast</a> - an eclectic discussion and collaborative hack session with Clojure.</li><li><a href='https://clojurescriptpodcast.com/'>clojurescript podcast</a> - with many Clojure and ClojureScript contributors, giving a deep insight into the language and development aproach.</li><li><a href='https://clojuredesign.club/'>clojure design club</a> - a very enjoyable discussion between two experienced developers working with Clojure, discussing issues raised by the community.</li><li><a href='http://blog.cognitect.com/cognicast'>cognicast</a> - a long running podcast from the stewards of the Clojure language</li><li><a href='https://twitter.com/defnpodcast?lang=en'>defn podcast</a> - an enjoyable but occasionally sweary podcast by one of the characters in the Clojure community.</li><li><a href='https://www.therepl.net/'>The REPL</a> - regular news about Clojure and activities in the community (also a mailing list)</li><li><a href='https://www.youtube.com/channel/UC5G6p4wwKuDKZsgDrbp5j5A'>JUXT Cast</a> - a new broadcasts from the development team at JUXT, a very active Clojure consultancy company</li></ul><p>I listen to these podcasts when I go for a walk in the park or shopping for fresh fruit and vegetables.</p><h2 id="summary">Summary</h2><p>I hope you enjoy the rich content available in the Clojure community and have a very merry Clojure holiday season.</p><p>If there are any topics or tips you need help with, please get in touch via the <a href='https://clojurians.slack.com/messages/practicalli'>Clojurians Slack community</a>.</p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/clojure/">clojure</a>
+    
+    <a href="/blog/tags/advent-of-parens/">advent-of-parens</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/clojure-advent-of-code-2019/">&laquo; Clojure Advent Of Code - a fun way to learn</a>
+        
+        
+        <a class="right" href="/blog/posts/consuming-apis-with-clojure/">Consuming APIs from Clojure &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/advent-of-parens-2019/";
+            this.page.identifier = "Advent Of Parens 2019 - feast on Clojure this holiday season";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: Gaining confidence with Clojure CLI tools</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/gaining-confidence-with-Clojure-CLI-tools/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">26 July 2019</div>
+        
+    </div>
+    <h2>Gaining confidence with Clojure CLI tools</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+    <img class="topic" src="/blog/images/clojure-cli-logo-name.png" alt="clojure-cli logo" />
+    
+</div>
+<div>
+    
+    <p>We are going to try out the different command line options available as we continue our journey into the Clojure CLI tools..</p><p> We explore the different ways to running Clojure code, from a single expression to a full project.  We include examples of aliases for optional configuration and combining aliases to create specific configurations when running a project.  Finally we will see how to diagnose a project and understand potential sources of conflicts.</p><blockquote><p> Newer content can be found in <a href='http://practicalli.github.io/clojure/clojure-tools/using-clojure-tools.html'>Using Clojure tools section of Practicalli Clojure</a> </p></blockquote><p>Please see earlier articles in thise series for background:</p><ul><li><a href='http://jr0cket.co.uk/2019/07/a-deeper-understanding-of-Clojure-CLI-tools.html'>A Deeper Understanding of Clojure CLI Tools</a></li><li><a href='http://jr0cket.co.uk/2019/07/getting-started-with-Clojure-CLI-tools.html'>Getting Started With Clojure CLI Tools</a></li></ul><p><!&ndash; more &ndash;></p><h2 id="cli&#95;options&#95;-&#95;getting&#95;help">CLI options - getting help</h2><p><code>clojure -h</code>, <code>-?</code> or <code>--help</code> lists the options are available for the Clojure CLI tool. You should see output as follows:</p><pre><code>clojure --help
+Usage: clojure &#91;dep-opt&#42;&#93; &#91;init-opt&#42;&#93; &#91;main-opt&#93; &#91;arg&#42;&#93;
+       clj     &#91;dep-opt&#42;&#93; &#91;init-opt&#42;&#93; &#91;main-opt&#93; &#91;arg&#42;&#93;
+
+The clojure script is a runner for Clojure. clj is a wrapper
+for interactive repl use. These scripts ultimately construct and
+invoke a command-line of the form:
+
+java &#91;java-opt&#42;&#93; -cp classpath clojure.main &#91;init-opt&#42;&#93; &#91;main-opt&#93; &#91;arg&#42;&#93;
+
+The dep-opts are used to build the java-opts and classpath:
+ -Jopt          Pass opt through in java&#95;opts, ex: -J-Xmx512m
+ -Oalias...     Concatenated jvm option aliases, ex: -O:mem
+ -Ralias...     Concatenated resolve-deps aliases, ex: -R:bench:1.9
+ -Calias...     Concatenated make-classpath aliases, ex: -C:dev
+ -Malias...     Concatenated main option aliases, ex: -M:test
+ -Aalias...     Concatenated aliases of any kind, ex: -A:dev:mem
+ -Sdeps EDN     Deps data to use as the last deps file to be merged
+ -Spath         Compute classpath and echo to stdout only
+ -Scp CP        Do NOT compute or cache classpath, use this one instead
+ -Srepro        Ignore the &#126;/.clojure/deps.edn config file
+ -Sforce        Force recomputation of the classpath &#40;don't use the cache&#41;
+ -Spom          Generate &#40;or update existing&#41; pom.xml with deps and paths
+ -Stree         Print dependency tree
+ -Sresolve-tags Resolve git coordinate tags to shas and update deps.edn
+ -Sverbose      Print important path info to console
+ -Sdescribe     Print environment and command parsing info as data
+
+init-opt:
+ -i, --init path     Load a file or resource
+ -e, --eval string   Eval exprs in string; print non-nil values
+         --report target     Report uncaught exception to &quot;file&quot; &#40;default&#41;, &quot;stderr&quot;, or &quot;none&quot;,
+                             overrides System property clojure.main.report
+
+main-opt:
+ -m, --main ns-name  Call the -main function from namespace w/args
+ -r, --repl          Run a repl
+ path                Run a script from a file or resource
+<ul><li>Run a script from standard input -h, -?, --help      Print this help message and exit
+
+For more info, see:
+ https://clojure.org/guides/deps&#95;and&#95;cli
+ https://clojure.org/reference/repl&#95;and&#95;main
+</code></pre></li></ul><h2 id="running&#95;code&#95;-&#95;the&#95;repl">Running code - the REPL</h2><p><code>clojure --repl</code>  or <code>clojure -r</code> runs a repl, so you can create your application right there in the command line terminal.</p><pre><code class="shell">clojure --repl
+
+Clojure 1.10.1
+user=&gt;
+</code></pre><p>This seems to be the same as the default behaviour when running <code>clojure</code></p><h2 id="running&#95;code&#95;-&#95;just&#95;an&#95;expression">Running Code - just an expression</h2><p>We can just evaluate a Clojure expression using the <code>--eval string</code> or <code>-e</code> option.  This option takes the expression as a string, so dont forget those double quotes.</p><pre><code class="shell">clojure -e &quot;&#40;+ 1 2 3&#41;&quot;
+
+6
+</code></pre><p>Calling code this way will print non-nil values.  So if we have an expression that returns nil as a side effect, then that value will not be printed.</p><pre><code class="shell">clojure -e &quot;&#40;println &#40;+ 1 2 3&#41;&#41;&quot;
+
+6
+</code></pre><p>And if an expression only returns nil, then nothing is printed</p><pre><code class="shell">clojure -e &quot;&#40;if &#40;= 1 2&#41; true nil&#41;&quot;
+</code></pre><h2 id="running&#95;code&#95;-&#95;from&#95;a&#95;project">Running code - from a project</h2><p>We saw in the Practicalli study group that you can run a project just by specifying the main namepsace.</p><p>Using the project <a href='https://github.com/practicalli/first-cli-app'>practicalli/first-cli-app</a> we can Run the project using the command:</p><pre><code class="shell">clojure -m practicalli.first-app
+</code></pre><p>The command called the <code>-main</code> function defined in <code>practicalli.first-app</code> namespce (<code>src/practicalli/first&#95;app.clj</code>)</p><h2 id="<code>-aalias</code>&#95;-&#95;include&#95;configuration&#95;sections&#95;when&#95;running&#95;<code>clojure</code>"><code>-Aalias</code> - include configuration sections when running <code>clojure</code></h2><p>Use aliases to define additional configuration sections that will be pulled into the overall configuration, as you call <code>clojure</code> on the command line.</p><p>From the ### Combining Aliases</p><p>As this is Clojure <a href='https://github.com/practicalli/first-cli-app'>practicalli/first-cli-app</a> we have two aliases defined, `:We have already been combining configurations and so its not surprising that we can combine aliases</p><pre><code class="clojure">{:paths &#91;&quot;resources&quot; &quot;src&quot;&#93;
+
+ :deps {org.clojure/clojure {:mvn/version &quot;RELEASE&quot;}}
+
+ :aliases {:test {:extra-paths &#91;&quot;test&quot;&#93;
+                  :extra-deps {org.clojure/test.check {:mvn/version &quot;RELEASE&quot;}}}
+
+           :runner {:extra-deps
+                     {com.cognitect/test-runner
+                      {:git/url &quot;https://github.com/cognitect-labs/test-runner&quot;
+                       :sha &quot;76568540e7f40268ad2b646110f237a60295fa3c&quot;}}
+                    :main-opts &#91;&quot;-m&quot; &quot;cognitect.test-runner&quot; &quot;-d&quot; &quot;test&quot;&#93;}}}
+</code></pre><p><code>clojure -A:test</code> will add <code>test</code> to the search path and include the <code>org.clojure/test.check</code> library.</p><p><code>clojure -A:runner</code> will add the <code>com.congnitect/test-runner</code> library from GitHub and then run with the <code>cognitect.test-runner</code> as the main namespace.  <code>clojure</code> will also include configuration from the <code>test</code> build configuration.</p><blockquote><p> The <a href='https://github.com/practicalli/first-cli-app'>practicalli/first-cli-app</a> does not yet define a <code>dev</code> build, so no additional configuration is added when using the <code>-A:runner</code> alias. </p></blockquote><h3 id="combining&#95;aliases">Combining Aliases</h3><p>We have already been combining configurations and so its not surprising that we can combine aliases too.</p><p>The practicalli/study-group-guide defines several aliases</p><pre><code class="clojure">{:deps {org.clojure/clojure {:mvn/version &quot;1.10.0&quot;}
+        org.clojure/clojurescript {:mvn/version &quot;1.10.339&quot;}
+        reagent {:mvn/version &quot;0.8.1&quot;}}
+ :paths &#91;&quot;src&quot; &quot;resources&quot;&#93;
+
+ :aliases {:fig {:extra-deps
+                  {com.bhauman/rebel-readline-cljs {:mvn/version &quot;0.1.4&quot;}
+                   com.bhauman/figwheel-main {:mvn/version &quot;0.1.9&quot;}}
+                 :extra-paths &#91;&quot;target&quot; &quot;test&quot;&#93;}
+           :build {:main-opts &#91;&quot;-m&quot; &quot;figwheel.main&quot; &quot;-b&quot; &quot;dev&quot; &quot;-r&quot;&#93;}
+           :min   {:main-opts &#91;&quot;-m&quot; &quot;figwheel.main&quot; &quot;-O&quot; &quot;advanced&quot; &quot;-bo&quot; &quot;dev&quot;&#93;}
+           :test  {:main-opts &#91;&quot;-m&quot; &quot;figwheel.main&quot; &quot;-co&quot; &quot;test.cljs.edn&quot; &quot;-m&quot; practicalli.test-runner&#93;}}}
+</code></pre><p><code>clojure -A:fig</code> will include the library for <code>figwheel-main</code> library and include the <code>:extra-paths</code> of <code>target</code>, where JavaScript is generated and <code>test</code> for project unit tests.</p><p><code>clojure -A:fig:build</code> will do the above and also build the project with figwheel-main, first loading in the <code>dev</code> build configuration.</p><p>The <code>dev</code> build is defined in <code>dev.cljs.edn</code> file.</p><pre><code class="clojure">&#94;{:watch-dirs &#91;&quot;test&quot; &quot;src&quot;&#93;
+  :css-dirs &#91;&quot;resources/public/css&quot;&#93;
+  :auto-testing true}
+{:main practicalli.study-group-guide}
+</code></pre><h2 id="<code>-sdeps</code>&#95;-&#95;adding&#95;dependencies&#95;to&#95;deps.edn"><code>-Sdeps</code> - adding dependencies to deps.edn</h2><p>The <code>-Sdeps</code> option will also add the given dependency to the current projects <code>deps.edn</code></p><p>Create a new project directory called packing-code</p><p>Create and edit a file called <code>deps.edn</code></p><p>Add the following simple configuration</p><p>Add a dependency to this file using the Clojure CLI tools</p><pre><code class="shell">clojure -Sdeps '{:deps {pack/pack.alpha {:git/url &quot;https://github.com/juxt/pack.alpha.git&quot; :sha &quot;dccf2134bcf03726a9465d2b9997c42e5cd91bff&quot;}}}' -m mach.pack.alpha.inject 'd9023b24c3d589ba6ebc66c5a25c0826ed28ead5'
+
+</code></pre><p>The command should execute without error and if so no output is returned.  So open the <code>deps.edn</code> file in the project and check the dependency has been added.</p><blockquote><p> It does seem easier to simply edit the <code>deps.edn</code> file and add project dependencies, especially as the code may need formatting.  If you are working with a bigger project then using the CLI to add a dependency to an existing <code>deps.edn</code> project configuration could be a convenient way to share new dependencies between teams or others who want to use your project, reducing the risk of copy/paste errors or adding different versions. </p><p> It could be useful to create a script that populates a project <code>deps.edn</code> file with all the same depencencies.  What happens if you try add the same dependency but with different versions?  Maybe using <code>clojure - script-to-set-dependencies.sh</code> </p></blockquote><h3 id="error:&#95;no&#95;<code>deps.edn</code>&#95;file">Error: no <code>deps.edn</code> file</h3><p>if you are not in a project with a <code>deps.edn</code> file then the call to <code>clojure -Sdeps ,,,</code> will fail with the following error</p><pre><code class="shell">Execution error &#40;FileNotFoundException&#41; at java.io.FileInputStream/open0 &#40;FileInputStream.java:-2&#41;.
+deps.edn &#40;No such file or directory&#41;
+
+Full report at:
+/tmp/clojure-3813266914468340055.edn
+</code></pre><p><a href='https://gist.github.com/0e94ed1d772ad6b051a382c8410c3f78'>A gist of the complete error</a> if you are interested</p><h2 id="<code>-stree</code>&#95;-&#95;adding&#95;dependencies&#95;to&#95;deps.edn"><code>-Stree</code> - adding dependencies to deps.edn</h2><p><code>clojure -Stree</code> in a project directory will show all the library dependencies you added to the project along with all the depencencies that each of those libraries have.</p><p><code>-Stree</code> is a very useful diagnostic tool when you have clashes between dependencies, or more likely the version of dependencies that the libraries you added as dependences have as dependencies (I think that needs a diagram).</p><p>In the <a href='https://github.com/practicalli/first-cli-app'>practicalli/first-cli-app</a> we can see that the <code>org.clojure/clojure</code> library we added has two libraries as its dependencies.</p><pre><code class="shell">clojure -Stree
+
+org.clojure/clojure 1.10.1
+  org.clojure/spec.alpha 0.2.176
+  org.clojure/core.specs.alpha 0.2.44
+</code></pre><p>If we look at <a href='https://github.com/practicalli/study-group-guide'>practicalli/study-group-guide</a> project which uses Clojure, ClojureScript and reagent libraries, the dependency tree is much larger.</p><pre><code class="shell">clojure -Stree
+org.clojure/clojure 1.10.0
+  org.clojure/core.specs.alpha 0.2.44
+  org.clojure/spec.alpha 0.2.176
+org.clojure/clojurescript 1.10.339
+  org.clojure/data.json 0.2.6
+  org.clojure/google-closure-library 0.0-20170809-b9c14c6b
+    org.clojure/google-closure-library-third-party 0.0-20170809-b9c14c6b
+  org.mozilla/rhino 1.7R5
+  com.cognitect/transit-clj 0.8.309
+    com.cognitect/transit-java 0.8.332
+      commons-codec/commons-codec 1.10
+      com.fasterxml.jackson.core/jackson-core 2.8.7
+      org.msgpack/msgpack 0.6.12
+        com.googlecode.json-simple/json-simple 1.1.1
+        org.javassist/javassist 3.18.1-GA
+  org.clojure/tools.reader 1.3.0-alpha3
+  com.google.javascript/closure-compiler-unshaded v20180610
+    com.google.errorprone/error&#95;prone&#95;annotations 2.0.18
+    com.google.jsinterop/jsinterop-annotations 1.0.0
+    com.google.javascript/closure-compiler-externs v20180610
+    com.google.guava/guava 22.0
+      org.codehaus.mojo/animal-sniffer-annotations 1.14
+      com.google.j2objc/j2objc-annotations 1.1
+    args4j/args4j 2.33
+    com.google.protobuf/protobuf-java 3.0.2
+    com.google.code.findbugs/jsr305 3.0.1
+    com.google.code.gson/gson 2.7
+reagent/reagent 0.8.1
+  cljsjs/react-dom 16.3.2-0
+  cljsjs/react 16.3.2-0
+  cljsjs/react-dom-server 16.3.2-0
+  cljsjs/create-react-class y15.6.3-0
+</code></pre><h3 id="managing&#95;dependency&#95;clashes">Managing dependency clashes</h3><p>In the figwheel-main project we saw that reagent/reagent library had 4 additional dependencies it relied upon.  If one of those dependencies were causing an issue, we could define an exclusion on the <code>reagent/reagent</code> dependency entry</p><pre><code class="clojure">{:deps {org.clojure/clojure {:mvn/version &quot;1.10.0&quot;}
+        org.clojure/clojurescript {:mvn/version &quot;1.10.339&quot;}
+        reagent {:mvn/version &quot;0.8.1&quot;
+                 :exclusions &#91;cljsjs/react-dom
+                              cljsjs/react-dom-server&#93;}}
+</code></pre><p><code>clojure -Stree</code> would now show that <code>reagent/reagent</code> only brings in two additional dependencies.</p><pre><code class="shell">clojure -Stree
+
+reagent/reagent 0.8.1
+  cljsjs/react 16.3.2-0
+  cljsjs/create-react-class y15.6.3-0
+</code></pre><h2 id="<code>-sresolve-tags</code>&#95;-&#95;adding&#95;dependencies&#95;to&#95;deps.edn"><code>-Sresolve-tags</code> - adding dependencies to deps.edn</h2><p>TODO: investigate</p><h2 id="<code>-sverbose</code>&#95;-&#95;clojure&#95;version&#95;and&#95;paths&#95;before&#95;running&#95;repl"><code>-Sverbose</code> - Clojure version and paths before running REPL</h2><p><code>clojure -Sverbose</code> simply shows the version of Clojure and all the paths and files used to run the REPL.  Then it runs a REPL as normal.</p><pre><code class="shell">clojure -Sverbose
+version      = 1.10.1.447
+install&#95;dir  = /usr/local/lib/clojure
+config&#95;dir   = /home/jr0cket/.clojure
+config&#95;paths = /usr/local/lib/clojure/deps.edn /home/jr0cket/.clojure/deps.edn deps.edn
+cache&#95;dir    = .cpcache
+cp&#95;file      = .cpcache/1067532457.cp
+
+Clojure 1.10.1
+user=&gt;
+</code></pre><p>The <code>config&#95;paths</code> configuration shows which <code>deps.edn</code> files are used to build up the configuration, very useful for debugging missing or incorrect configuration (if its pulling in unexpected files into the configuration).</p><blockquote><p> Read the <a href='../development-workflow-with-clojure-cli-tools/'>Development Workflow with Clojure CLI tools article</a> for and example of Clojure CLI tools with a figwheel-main project </p></blockquote><h2 id="<code>-sdescribe</code>&#95;-&#95;showing&#95;the&#95;configuration&#95;and&#95;where&#95;it&#95;came&#95;from"><code>-Sdescribe</code> - showing the configuration and where it came from</h2><p>The <code>-Sdescribe</code> option provides a simple way to understand where <code>clojure</code> is getting its configuration from and what the key parts of that configuration are.</p><pre><code class="shell">clojure -Sdescribe
+
+{:version &quot;1.10.1.447&quot;
+ :config-files &#91;&quot;/usr/local/lib/clojure/deps.edn&quot; &quot;/home/jr0cket/.clojure/deps.edn&quot; &quot;deps.edn&quot; &#93;
+ :install-dir &quot;/usr/local/lib/clojure&quot;
+ :config-dir &quot;/home/jr0cket/.clojure&quot;
+ :cache-dir &quot;.cpcache&quot;
+ :force false
+ :repro false
+ :resolve-aliases &quot;&quot;
+ :classpath-aliases &quot;&quot;
+ :jvm-aliases &quot;&quot;
+ :main-aliases &quot;&quot;
+ :all-aliases &quot;&quot;}
+</code></pre><p>Thank you. <a href='https://twitter.com/practicalli'>@practicalli</a></p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/clojure-cli/">clojure-cli</a>
+    
+    <a href="/blog/tags/tools-deps/">tools-deps</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/development-workflow-with-clojure-cli-tools/">&laquo; Development Workflow with Clojure CLI tools</a>
+        
+        
+        <a class="right" href="/blog/posts/a-deeper-understanding-of-clojure-cli-tools/">A deeper understanding of Clojure CLI tools &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/gaining-confidence-with-Clojure-CLI-tools/";
+            this.page.identifier = "Gaining confidence with Clojure CLI tools";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

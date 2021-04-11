@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: journey to the edge of clojure</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/journey-to-the-edge-of-clojure/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">9 August 2019</div>
+        
+    </div>
+    <h2>journey to the edge of clojure</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+    <img class="topic" src="/blog/images/clojure-cli-logo-name.png" alt="clojure-cli logo" />
+    
+</div>
+<div>
+    
+    <p><i>This article is a work in progress</i></p><p>Clojure CLI tools is a relatively new approach to creating an managing projects.  The <a href='https://juxt.pro/edge/'>Edge project</a> from JUXT takes the approach and extends it with its own features, such as being able to update projects created from the edge configuration.</p><p>Unlike Leiningen and Boot templates which are one of tasks, you can update a project you created a while ago with Edge and bring it up to date.  It will be interesting to try this out in future articles.</p><p>Please see earlier articles in this series for background:</p><ul><li><a href='http://jr0cket.co.uk/2019/07/gaining-confidence-with-Clojure-CLI-tools.html'>Experimenting With Clojure CLI Tools Options</a></li><li><a href='http://jr0cket.co.uk/2019/07/a-deeper-understanding-of-Clojure-CLI-tools.html'>A Deeper Understanding of Clojure CLI Tools</a></li><li><a href='http://jr0cket.co.uk/2019/07/getting-started-with-Clojure-CLI-tools.html'>Getting Started With Clojure CLI Tools</a></li></ul><p><!&ndash; more &ndash;></p><h2 id="installing&#95;juxt&#95;edge">Installing JUXT Edge</h2><p>You will need Clojure CLI tools installed to use Edge, so visit the <a href='https://clojure.org/guides/getting_started'>Clojure.org - Getting Started page</a>, or take a look at my article <a href='http://jr0cket.co.uk/2019/07/getting-started-with-Clojure-CLI-tools.html'>Getting Started With Clojure CLI Tools</a></p><p>Edge also has <a href='https://juxt.pro/edge/docs/editor.html'>editor setup guides for Clojure</a> for Atom, Emacs, Spacemacs, Intellij (Cursive), Vim and VS Code with Calva.  There does not seem to be anything specific to Edge here though, so assume it doesnt require anything to be configured.</p><blockquote><p> Using Emacs or Spacemacs, you may need to specify one or more aliases to use with Edge, so see my article on <a href='http://jr0cket.co.uk/2019/07/CIDER-jack-in-to-Clojure-CLI-projects-from-Spacemacs.html'>CIDER jack-in to Clojure CLI projects from Spacemacs</a> </p></blockquote><p>You also need to have a Git client installed.</p><h2 id="creating&#95;a&#95;project&#95;with&#95;edge">Creating a project with Edge</h2><p>If you are starting a new project, then you can simply create a local Git repository and add Edge as a remote repository and pull</p><pre><code class="shell">mkdir my-project
+
+cd my-project
+
+git init
+
+git remote add edge https://github.com/juxt/edge.git
+
+git pull --allow-unrelated-histories --no-rebase edge master
+</code></pre><h2 id="adding&#95;edge&#95;to&#95;an&#95;existing&#95;project">Adding Edge to an existing project</h2><p>A big difference to Boot and Leiningen templates is you can take an existing project and add Edge to it.  So you can either clone a project or create a new project with <code>clj-new</code> if you have that installed.</p><p>Then just add Edge as a remote repository and pull.</p><pre><code class="shell">git remote add edge https://github.com/juxt/edge.git
+
+git pull --allow-unrelated-histories --no-rebase edge master
+</code></pre><blockquote><p> It will be interesting to try this approach out on older projects.  I assume the project has to have a deps.edn file already (something interesting to test). </p></blockquote><h2 id="creating&#95;a&#95;new&#95;app">Creating a new app</h2><p>Although we have added Edge to our new project, we dont yet have an app.  There are examples you can run, but you probably want to create your own app rather than unpicking an existing one (also if the example updates, I am not sure what that would do to your changes).</p><p>Lets start with creating a simple Clojure api for our study group.</p><p>In the root of the project run the <code>./bin/app</code> command and give it the name of your project.  You need to specify a namespace with the overall domain (your company or GitHub account for example) and the project name.  I am using <code>practicalli</code> as the domain namespace and <code>study-guide-api</code> as the project namespace.</p><pre><code class="shell">./bin/app practicalli/study-guide-api
+</code></pre><p>You should see output telling you the a new app has been created using the <code>edge.app-template</code></p><p><img src="/blog/images/clojure-cli-juxt-edge-new-app-output.png" alt="Clojure CLI - JUXT Edge - New app output" /></p><p>A new directory has been created using the domain and project namespace names you provided.  In our example, <code>practicalli.study-guide-api</code></p><p><img src="/blog/images/clojure-cli-juxt-edge-new-app-tree.png" alt="Clojure CLI - JUXT Edge - New app output" /></p><h2 id="starting&#95;the&#95;repl">Starting the REPL</h2><p>As we are using a Clojure project, we can start a REPL using by just including the <code>:dev</code> alias when we run Clojure on the command line.</p><pre><code class="shell">clojure -A:dev
+</code></pre><blockquote><p> Take a look at the <code>deps.edn</code> file inside <code>practicalli.study-group-api</code> directory for more options, especially if you create a ClojureScript or SASS project. </p></blockquote><p>The project will download a noticable number of dependencies at this point, so time for a quick cup of peppermint tea...</p><p>Once the dependencies are downloaded you should see the standard <code>clojure</code> REPL.</p><p>I had expected rebel readline instead, but this is available when running the relevant Edge scripts, <code>/bin/rebel</code>.  Keep in the <code>practicalli.study-guide-api</code> directory root and call the rebel script with the <code>:dev</code> alias.</p><pre><code class="shell">../bin/rebel -A:dev
+</code></pre><p>There will be just a few more dependencies to download, so this should be quick.  You should see the rebel readline prompt as well as a message to call the <code>&#40;go&#41;</code> function.</p><p><img src="/blog/images/clojure-cli-juxt-edge-new-app-repl-rebel.png" alt="Clojure CLI - JUXT Edge - New app output" /></p><p>At the REPL prompt, type <code>&#40;go&#41;</code> to start the system for the application.  This is a common approach for applications that have some component system to start/stop/reload your application or individual components of your application.</p><p>Open your browser at localhost:3636 to see the default project.</p><p><img src="/blog/images/clojure-cli-juxt-edge-new-app-website-hello.png" alt="Clojure CLI - JUXT Edge - New app output" /></p><p>If you make any changes to the code you can reload them by calling <code>&#40;reset&#41;</code> in the REPL.</p><h2 id="adding&#95;a&#95;component&#95;and&#95;route">Adding a component and route</h2><p>Samples taken from https://juxt.pro/edge/docs/first-component.html</p><p>Add a yada resource - its just a Clojure function</p><blockquote><p> <a href='https://github.com/juxt/yada'>yada</a> is a web library for Clojure, designed to support the creation of production services via HTTP. </p></blockquote><pre><code class="clojure">&#40;def hello-language
+ &#40;yada/resource
+  {:methods
+   {:get
+    {:produces
+     {:media-type &quot;text/plain&quot;
+      :language #{&quot;en&quot; &quot;zh-ch;q=0.9&quot;}}
+     :response
+     #&#40;case &#40;yada/language %&#41;
+        &quot;zh-ch&quot; &quot;你好世界\n&quot;
+        &quot;en&quot; &quot;Life on the Edge&quot;&#41;}}}&#41;&#41;
+</code></pre><p>Now we create a component for the yada resource for the web router to depend on.</p><p>To do this, we use defmethod on ig/init-key.</p><p>(defmethod ig/init-key   ::hello-language   [<i> </i>]   hello-language)</p><p>The <code>ig/init-key</code> takes two arguments but we are not going to use them, so we can use the <code>&#95;</code> to provide an argument so the defmethod is valid but not use the argument values.</p><p>now update our system to include our new component. Open "src/config.edn" in your editor. Within the :ig/system map, add a key <code>:practicalli.study-group-api.core/hello-language nil</code></p><p>Here is a brief explanation of the Integrant configuration file, <code>config.edn</code></p><pre><code class="clojure">{:ig/system
+
+ {
+  ;; component resources
+  :practicalli.study-group-api.core/hello-language nil
+  :practicalli.study-group-api.core/string         &quot;Hello, study-group-api!&quot;
+
+  ;; Integrant configuration for yada web listener
+  :edge.yada.ig/listener
+  {:handler #ig/ref :edge.bidi.ig/vhost
+   :port    3636}
+
+  ;; Integrant
+  :edge.bidi.ig/vhost
+  &#91;&#91;&quot;http://localhost:3636&quot;
+
+    ;; routes
+    &#91;&quot;&quot;
+     &#91;&#91;&quot;/&quot; #ig/ref :practicalli.study-group-api.core/string&#93;
+      &#91;&quot;/hello&quot; #ig/ref :practicalli.study-group-api.core/hello-language&#93;&#93;&#93;&#93;&#93;}}
+</code></pre><p>Now back to the REPL and call <code>&#40;reset&#41;</code> to stop the app, load in the new resource and start again.</p><h2 id="unboxing&#95;edge">Unboxing Edge</h2><p>Pulling edge into master will add a number of files</p><h3 id=".gitignore">.gitignore</h3><p>This contains patterns specific to the libraries this project uses, such at the <code>.cpcache</code> used by Clojure CLI tools and the <code>.rebel&#95;readline&#95;history</code> to keep a history of commands entered when running rebel readline based REPL.</p><pre><code class="text">&#42;&#42;/.cpcache
+&#42;&#42;/.rebel&#95;readline&#95;history
+&#42;&#42;/.nrepl-port
+&#42;&#42;/target/&#42;/&#42;&#42;
+&#42;&#42;/log/&#42;
+!&#42;&#42;/target/&#42;/.gitkeep
+
+# pack'd output
+/&#42;.jar
+&#42;&#42;/&#42;.jar
+</code></pre><p>There are 4 years worth of commits added, so if you wanted to see how Edge has evolved then fire up your favourite git client</p><p><img src="/blog/images/clojure-cli-juxt-edge-first-commit.png" alt="Clojure CLI - JUXT Edge - First Committ" /></p><p>Thank you. <a href='https://twitter.com/jr0cket'>@jr0cket</a></p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/clojure-cli/">clojure-cli</a>
+    
+    <a href="/blog/tags/tools-deps/">tools-deps</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/clojure-powered-blogging-with-cryogen/">&laquo; Clojure powered blogging with Cryogen</a>
+        
+        
+        <a class="right" href="/blog/posts/community-tools-for-clojure-cli/">Community projects for Clojure CLI tools &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/journey-to-the-edge-of-clojure/";
+            this.page.identifier = "journey to the edge of clojure";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

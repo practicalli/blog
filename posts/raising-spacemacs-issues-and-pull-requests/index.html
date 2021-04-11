@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: Spacemacs - raising issues and pull requests</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/raising-spacemacs-issues-and-pull-requests/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">14 February 2020</div>
+        
+    </div>
+    <h2>Spacemacs - raising issues and pull requests</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+    <img class="topic" src="/blog/images/spacemacs-logo-name.png" alt="spacemacs logo" />
+    
+</div>
+<div>
+    
+    <p>Contributing to <a href='https://www.spacemacs.org/'>Spacemacs</a> is very much a community activity and we can all help the maintainers continue to make <a href='https://www.spacemacs.org/'>Spacemacs</a> an excellent experience for everyone.</p><p>With a few simple tips, its easy to report issues and create pull requests that are ready to merge into Spacemacs <code>develop</code>.</p><p><!&ndash; more &ndash;></p><h2 id="spacemacs&#95;master&#95;and&#95;develop">Spacemacs master and develop</h2><p>If you have a problem with Spacemacs, there is a good chance that its already been fixed in the <code>develop</code> branch of Spacemacs.  Until Spacemacs 0.300 is released to <code>master</code> then I recommend using the <code>develop</code> branch.  There are lots of new features on <code>develop</code> too.</p><p>To change to <code>develop</code>, open a terminal and change to the <code>&#126;/.emacs.d</code> directory and run the Git command <code>git checkout develop</code>.</p><p>Before starting Emacs with the <code>develop</code> branch, move your <code>.spacemacs</code> file to a backup.  This will create the latest version of the <code>.spacemacs</code> file from the Spacemacs template.  If you keep your original <code>.spacemacs</code> file, then use <code>SPC f e D</code> to launch ediff with your current <code>.spacemacs</code> file and the latest Spacemacs template.</p><blockquote><p> <a href='https://www.youtube.com/watch?v=XC7LGI0Q2u8&list=PLpr9V-R8ZxiCHMl2_dn1Fovcd34Oz45su&index=3'>Updating Spacemacs develop from within Spacemacs</a> demonstrates how to update the <code>develop</code> branch using Magit. </p></blockquote><h2 id="raising&#95;issues">Raising Issues</h2><p>Take a look at the <a href='https://github.com/syl20bnr/spacemacs/issues'>current issue list on the Spacemacs repository</a> before creating a new issue, it might have already been raised.  The Spacemacs community is very active, so issues do get raised quickly.</p><blockquote><p> Ask on the <a href='https://gitter.im/syl20bnr/spacemacs'>Spacemacs Gitter chat</a> if you are not sure if its an issue, or just need help. For Clojure specific help, there is also <a href='clojurians.slack.com/messages/spacemacs'>#spacemacs channel</a> in the <a href='http://clojurians.net/'>Clojurians Slack community</a>. </p></blockquote><p><code>SPC h I</code> or <code>M-m h I</code> within Spacemacs will create an issue on the Spacemacs GitHub repository, including all the useful information about your environment, including version of Spacemacs, Emacs, Operating System, etc.  All very useful to help get your issue resolved quicker.</p><p>Please be as descriptive as possible on how the issue happens and what you would expect to happen instead.</p><h2 id="making&#95;changes">Making changes</h2><p>If you have a fix, a new feature or keybindings to add/change, then pull requests are most welcome.  Again you can create almost everything from Spacemacs, only visiting GitHub to press the <strong>Create pull request</strong> button at the end.</p><blockquote><p> Please read the <a href='https://github.com/syl20bnr/spacemacs/blob/develop/doc/CONVENTIONS.org'>Spacemacs Conventions</a> before making changes, especially the naming and keybinding conventions. </p></blockquote><p>To make a change:</p><ul><li><em><a href='https://www.youtube.com/watch?v=XC7LGI0Q2u8&list=PLpr9V-R8ZxiCHMl2_dn1Fovcd34Oz45su&index=3'>Update to the latest <code>develop</code> branch</a></em> and fork the project to your own GitHub repository.  Or clone Spacemacs to a different directory if you dont want to hack on your live setup.</li><li><em>Create a new branch from <code>develop</code> with a meaningful name</em> - <code>SPC g s</code> to open Magit Status. <code>b c</code> to start creating a branch. Select <code>develop</code> from the list of current branches as the base for you new branch.  Type in the name of your new branch and press <code>RET</code>.  You are automatically placed in the new branch.</li><li><em>Make your changes and create a single commit</em> - <code>SPC g s</code> for magit status, <code>s</code> to stage changes, <code>c c</code> to create a new commit, entering a commit message.</li></ul><p>Use the <strong>[layer-name]</strong> convention if the PR is for a specific layer, to help everyone to find and review your pull request quickly.  For example: <strong>[Clojure] Sesman and missing eval / format keybindings</strong></p><p><a href='https://github.com/syl20bnr/spacemacs/pull/13215'><img src="/blog/images/spacemacs-github-pull-request-title-merged.png" alt="Spacemacs GitHub Pull Request - Title in square brackets convention" /></a></p><p>Changes in pull requests include three parts and should be all part of a <strong>single commit</strong>.</p><ul><li>CHANGELOG.develop entry - a summary of the change made that is part of the documentation for the next stable release and so everyone can find it easily</li><li>README.org - any changes to using a layer</li><li>The change itself - unless its just a documentation change in the README.org.</li></ul><h2 id="creating&#95;a&#95;pull&#95;request">Creating a pull request</h2><p>An example of making a change to the Clojure layer from within Spacemacs, creating a single commit using Magit.</p><p>You only need to visit GitHub to press the <em>Create Pull Request</em> button.</p><p>If you need to update a Pull Request, then commit all your changes locally using Commit Amend, <code>c a</code> in Magit.  Then force push</p><p><!&ndash; Video - consider redoing &ndash;> <iframe width="560" height="315" src="https://www.youtube.com/embed/OMS-3Jl05mE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></p><p>Thank you <a href='https://practicalli.github.io/'>Practicalli</a></p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/pull-requests/">pull-requests</a>
+    
+    <a href="/blog/tags/spacemacs/">spacemacs</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">&laquo; Web Scraping with Clojure - Scraping Hacker News</a>
+        
+        
+        <a class="right" href="/blog/posts/lenovo-x1-extreme-gen2-ubuntu-install/">Ubuntu install on Lenovo X1 Extreme 2nd Gen with RAID &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/raising-spacemacs-issues-and-pull-requests/";
+            this.page.identifier = "Spacemacs - raising issues and pull requests";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

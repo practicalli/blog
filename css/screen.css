@@ -1,0 +1,213 @@
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Ubuntu';
+}
+
+body {
+    color: #333;
+    background-color: #f2f2f2;
+    font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+.container {
+    max-width: 96%;
+    width: 84%
+}
+
+.right {
+    float: right;
+    text-align: right;
+}
+
+.navbar {
+    border-radius: 0;
+    box-shadow: 0 0 0 0,0 6px 12px rgba(34,34,34,0.3);
+}
+
+.navbar-default {
+    background-color: #62B132;
+    border: none;
+}
+
+.navbar-default .navbar-brand {
+    color: #fff;
+    font-family: 'Ubuntu';
+}
+
+.navbar-default .navbar-brand:hover {
+    color: #fff;
+}
+
+.navbar-default .navbar-nav li a {
+    color: #fff;
+}
+
+.navbar-default .navbar-nav li a:hover {
+    color: #fff;
+    background-color: #91DC47;
+}
+
+.navbar-default .navbar-nav .active a {
+    color: #fff;
+    background-color: #91DC47;
+}
+
+.navbar-default .navbar-toggle:hover{
+    background-color: #91DC47;
+}
+
+.navbar-default .navbar-toggle .icon-bar {
+    background-color: #fff;
+}
+
+#sidebar {
+    margin-left: 15px;
+    margin-top: 50px;
+}
+
+#content {
+    background-color: #fff;
+    border-radius: 3px;
+    box-shadow: 0 0 0 0,0 6px 12px rgba(34,34,34,0.1);
+}
+
+
+#content img {
+    max-width: 100%;
+    height: auto;
+    padding-top: 1em;
+    padding-bottom: 2em;
+}
+
+img.topic {
+        float: right;
+}
+
+
+footer {
+    font-size: 14px;
+    text-align: center;
+    padding-top: 75px;
+    padding-bottom: 30px;
+}
+
+blockquote footer {
+    text-align: left;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+#post-tags {
+    margin-top: 30px;
+}
+
+#prev-next {
+    padding: 15px 0;
+}
+
+.post-header {
+    margin-bottom: 20px;
+}
+.post-header h2 {
+    font-size: 32px;
+}
+
+#post-meta {
+    font-size: 14px;
+    color: rgba(0,0,0,0.4)
+}
+
+#page-header {
+    border-bottom: 1px solid #dbdbdb;
+    margin-bottom: 20px;
+}
+#page-header h2 {
+    font-size: 32px;
+}
+
+pre {
+    overflow-x: auto;
+    padding: 0.1em;
+}
+pre code {
+    font-size: 1.25em;
+    font-family: 'Ubuntu Mono';
+    display: block;
+    padding: 0.1em;
+    overflow-wrap: normal;
+    white-space: pre;
+}
+
+code {
+    color: #428bca;
+}
+
+pre, code, .hljs {
+    background-color: #f7f9fd;
+}
+
+hr {
+    border: 4px solid #62B132;
+    border-radius: 5px;
+}
+
+blockquote{
+    font-size: 0.84em;
+    width:96%;
+    margin:16px auto;
+    font-family:Ubuntu;
+    font-style:italic;
+    color: #555555;
+    padding:1.2em 16px 1.2em 12px;
+    border-left:8px solid #91DC47;
+    line-height:1.6;
+    position: relative;
+    background:#EDEDED;
+}
+
+/* Style lists */
+ul li {
+    padding: 0 0 0.4em 0;
+    list-style-image: url("/blog/images/practicalli-logo-bullet.png");
+}
+
+
+@media (min-width: 842px) {
+    .navbar {
+        min-height: 64px;
+    }
+    .navbar-nav>li>a {
+        padding: 30px 20px;
+    }
+    .navbar-default .navbar-brand {
+        font-size: 42px;
+        padding: 25px 15px;
+    }
+    #content{
+        margin-top: 30px;
+        padding: 30px 40px;
+    }
+}
+
+@media (max-width: 841px) {
+    body{
+        font-size: 14px;
+    }
+    .navbar-default .navbar-brand {
+        font-size: 30px;
+    }
+    .navbar-header img {
+        width: 200px
+    }
+    #content{
+        padding: 4px;
+    }
+    #post-meta .right {
+        float:left;
+        text-align: left;
+    }
+    img.topic {
+        width: 120px;
+        float: right;
+    }
+}

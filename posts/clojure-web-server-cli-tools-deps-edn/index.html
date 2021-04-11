@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: Clojure web server from scratch with deps.edn</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/clojure-web-server-cli-tools-deps-edn/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">15 November 2019</div>
+        
+    </div>
+    <h2>Clojure web server from scratch with deps.edn</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+    <img class="topic" src="/blog/images/clojure-cli-logo-name.png" alt="clojure-cli logo" />
+    
+</div>
+<div>
+    
+    <p>Discover how to build a Clojure web server from the ground up using Clojure CLI tools to create and run the project and <code>deps.edn</code> to manage the dependencies.</p><p>Update: <a href='https://practicalli.github.io/clojure-webapps/'>Practicalli Clojure WebApps</a> has newer versions of this guide.  Take a look at the Status Monitor and Banking on Clojure projects</p><blockquote><p> This project will be used to build a web server that will serve our API, which we will build in future posts and <a href='http://yt.vu/+practicalli'>study group broadcasts</a>. </p></blockquote><p><!&ndash; more &ndash;></p><h1 id="create&#95;a&#95;project">Create a project</h1><p>A new project could be made by manually creating a few files and directories.  The <a href='https://github.com/seancorfield/clj-new'>clj-new project</a> provides a convienient was to create a project from a template. The <a href='https://github.com/practicalli/clojure-deps-edn'>practicalli/clojure-deps-edn configuration</a> contains the <code>:project/new</code> alias.</p><p>In a terminal, create the project called <code>practicalli/simple-api-server</code></p><pre><code class="shell">clojure -M:project/new app practicalli/simple-api-server
+</code></pre><p>This creates a Clojure namespace (file) called <code>simple-api-server</code> in the <code>practicalli</code> domain.  The project contains the <code>clojure.core</code>, <code>test.check</code> and <code>test.runner</code> libraries by default.</p><p>The <code>deps.edn</code> file defines two aliases (possibly a few more).</p><ul><li><code>:test</code> includes the <code>test.check</code> library and test code files under the <code>test</code> path.</li><li><code>:runner</code> sets the main namespace to that of the test runner, calling the <code>-main</code> function in that namespace which then runs all the tests under the directory <code>test</code>.</li></ul><p><strong>deps.edn</strong></p><pre><code class="clojure">
+{:paths &#91;&quot;src&quot; &quot;resources&quot;&#93;
+ :deps {org.clojure/clojure {:mvn/version &quot;1.10.3&quot;}}
+ :aliases
+ {:run-m {:main-opts &#91;&quot;-m&quot; &quot;practicalli.simple-api-server&quot;&#93;}
+  :run-x {:ns-default practicalli.simple-api-server
+          :exec-fn greet
+          :exec-args {:name &quot;Clojure&quot;}}
+  :test {:extra-paths &#91;&quot;test&quot;&#93;
+         :extra-deps {org.clojure/test.check {:mvn/version &quot;1.1.0&quot;}}}
+  :runner
+  {:extra-deps {com.cognitect/test-runner
+                {:git/url &quot;https://github.com/cognitect-labs/test-runner&quot;
+                 :sha &quot;b6b3193fcc42659d7e46ecd1884a228993441182&quot;}}
+   :main-opts &#91;&quot;-m&quot; &quot;cognitect.test-runner&quot;
+               &quot;-d&quot; &quot;test&quot;&#93;}
+  :uberjar {:replace-deps {com.github.seancorfield/depstar
+{:mvn/version &quot;2.0.211&quot;}}
+            :exec-fn hf.depstar/uberjar
+            :exec-args {:aot true
+                        :jar &quot;simple-api-server.jar&quot;
+                        :main-class &quot;practicalli.simple-api-server&quot;
+                        :sync-pom true}}}}
+</code></pre><p>The project created with <a href='https://github.com/seancorfield/clj-new#getting-started'>clj-new</a> contains all these files</p><p><img src="/blog/images/clojure-simple-api-project-tree.png" alt="Clojure APIs - simple project" /></p><h2 id="adding&#95;a&#95;web&#95;server">Adding a web server</h2><p>To create our Clojure web server we are going to use the httpkit project which is based on the common ring design for web servers.</p><p>Using httpkit it is easy to create a server and have functions to stop and start that server inside the REPL, all in a few lines of Clojure code.  Underneath is a powerful JVM server that has been tested to serve 600,000 concurrent HTTP request and supports many modes of operation (websockets, streaming, long polling).</p><p>Routing will be done using the compojure library, which is a common approach in the Clojure community (although there are other projects).</p><h3 id="add&#95;httpkit&#95;dependency">Add httpkit dependency</h3><p>Add the httpkit library to the project.</p><p>Edit the <code>project.edn</code> file and add <code>http-kit</code> version <code>2.5.3</code> to the <code>:deps</code> map of dependencies</p><pre><code class="clojure">:deps
+{org.clojure/clojure {:mvn/version &quot;1.10.3&quot;}
+ http-kit/http-kit {:mvn/version &quot;2.5.3&quot;}}
+</code></pre><h3 id="add&#95;httpkit&#95;server&#95;namespace">Add httpkit server namespace</h3><p>Add the httpkit server namespace to the project namespace in which we are going to write the code that defines our server.</p><p>Edit <code>simple-api-server.clj</code> file and change the <code>ns</code> definition</p><pre><code class="clojure">&#40;ns practicalli.simple-api-server
+  &#40;:gen-class&#41;
+  &#40;:require &#91;org.httpkit.server :as server&#93;&#41;&#41;
+</code></pre><blockquote><p> <code>:gen-class</code> allows us to run this namespace from the command line using the <code>java</code> command. </p></blockquote><h3 id="define&#95;an&#95;httpkit&#95;server">define an httpkit server</h3><p>Define a function that starts a Jetty server, taking a port number as an argument</p><p>When called, the function starts the server on the specified port and passes all requests to the handler function (which we define next).</p><p>The Jetty server listens on the port for all http requests.  Each request is converted by the httpkit server to a Clojure hash-map.</p><pre><code class="clojure">&#40;defn create-server
+  &quot;A ring-based server listening to all http requests
+  port is an Integer greater than 128&quot;
+  &#91;port&#93;
+  &#40;server/run-server handler {:port port}&#41;&#41;
+</code></pre><blockquote><p> There are <a href='https://www.http-kit.org/server.html'>several modes of operation</a>, simple HTTP server, async/websocket, HTTP streaming and long polling.  These modes can be configures as part of the <code>create-server</code> function. </p></blockquote><h3 id="add&#95;a&#95;handler">Add a handler</h3><p>The <code>create-server</code> function creates a server that sends every request to the <code>handler</code> function.</p><p>The <code>handler</code> function take a request hash-map, bound to the <code>req</code> argument.</p><p>The <code>handler</code> should return a response hash-map, containing values for <code>:status</code>, <code>:body</code> and <code>:headers</code>.</p><pre><code class="clojure">&#40;defn handler
+  &quot;A function that handles all requests from the server.
+  Arguments: `req` is a ring request hash-map
+  Return: ring response hash-map including :status :headers and :body&quot;
+  &#91;req&#93;
+  {:status  200
+  :headers {}
+  :body    &quot;Hello Clojure Server world!&quot;}&#41;
+</code></pre><blockquote><p> <strong>httpkit server request and response keys</strong> </p><p> The httpkit server creates a Clojure hash-map from each http request, referred to as the request hash-map, using the ring standard. </p><p>The request hash-map contains <a href='https://github.com/ring-clojure/ring/wiki/Concepts#requests'>the ring request keys</a> </p><p> The <code>handler</code> function returns a <a href='https://github.com/ring-clojure/ring/wiki/Concepts#responses'>ring response keys</a>. </p></blockquote><h2 id="running&#95;the&#95;application">Running the application</h2><p>Start a REPL using the Clojure CLI tools, preferably using <a href='https://github.com/bhauman/rebel-readline#clojure-tools'>rebel-readline</a> for the complete REPL experience.</p><pre><code class="shell">clojure -M:repl/rebel
+</code></pre><p>In the REPL, load the namespace to include all the code in the running REPL.  Use the <code>:verbose</code> option to show what namespaces are loading if you are curious.</p><pre><code class="clojure">&#40;require '&#91;practicalli.simple-api-server&#93; :verbose&#41;
+</code></pre><p>Change to the namespace so you can call the functions directly from that namespace (otherwise you have to use <code>practicalli.simple-api-server/function-name</code> each time)</p><pre><code class="clojure">&#40;in-ns 'practicalli.simple-api-server&#41;
+</code></pre><p>Finally we can call the <code>create-server</code> function to start our webserver on a particular port.</p><pre><code class="clojure">&#40;create-server&#41;
+</code></pre><blockquote><p> <strong>Spacemacs</strong> </p><p> 1) <code>SPC f f</code> to open a <em>.clj</em> file from the project </p><p> 2) <code>,'</code> to start a REPL for this project (you could use the code above in the REPL buffer) </p><p> 3) <code>, s n</code> to send current namespace to the repl </p><p> 4) <code>, e b</code> evaluate all the code in the source file (loading the namespace code - can this be done instead of loading namespace) </p><p> 5) <code>, s s</code> to switch to the REPL window </p><p> 6) Enter <code>&#40;create-server 8000&#41;</code> and press <code>RET</code> to evaluate the function call and start the server. </p></blockquote><h2 id="testing&#95;our&#95;application">Testing our application</h2><p><code>clojure.test</code> library is built into Clojure that provides a simple unit test framework and test runner.  As its part of Clojure, all we need to do is require the library in the namespaces where we write our tests.  There are <a href='https://gist.github.com/plexus/a816a942c01b0e7af1e9836205100337'>several other test libraries and test runners</a> too.</p><p>For every namespace under <code>src</code> we wish to test, we create the same namespace under <code>test</code> directory and post-fix <code>-test</code> to the original name.  So in our project we have:</p><ul><li><code>src/practicalli/simple-api-server</code> containing our application functions</li><li><code>test/practicalli/simple-api-server-test</code> containing our test functions</li></ul><p><code>deftest</code> function is used to define a test that can contain one or more assertions as well as use any setup and tear-down functions.</p><p><code>is</code> function is used to define a single assertion, comparing a known value with the result of calling a function from the namespace under test.</p><h3 id="requiring&#95;the&#95;namespace&#95;to&#95;be&#95;tested">Requiring the namespace to be tested</h3><p>The clj-new app template already created a <code>test/simple-api-server-test.clj</code> file and required <code>clojure.test</code> and the namespace to be tested.</p><p>Practicalli recommends changing the way the namespaces required.</p><ul><li>use a meaningful and consistant alias for the namespace to be tested, i.e <code>SUT</code>.</li><li>refer specific functions from <code>clojure.test</code> that are used to define your tests, rather than the indiscriminate <code>:refer :all</code></li></ul><p>Edit <code>test/practicalli/simple-api-server-test.clj</code>  and update the <code>ns</code> definition to define the <code>SUT</code> alias for the namespace to be tested.</p><pre><code class="clojure">&#40;ns practicalli.simple-api-server-test
+  &#40;:require &#91;clojure.test :refer &#91;deftest is testing&#93;&#93;
+            &#91;practicalli.simple-api-server :as SUT&#93;&#41;&#41;
+</code></pre><blockquote><p> <strong><code>SUT</code></strong> is a commonly used alias meaning <a href='https://en.wikipedia.org/wiki/System_under_test'>System Under Test</a>.  The alias was added rather than including all functions using <code>:refer :all</code>. </p><p> The alias makes it easy to see which functions are being called from the system under test and therefore provide an understanding of where they are being tested. </p></blockquote><h3 id="write&#95;a&#95;basic&#95;test">Write a basic test</h3><p>One of the simplest tests we can write it to check the handler is returning a request.  Specifically we can test if we are returning a <code>200</code> status that confirms the http request was successful.</p><blockquote><p> <a href='https://en.wikipedia.org/wiki/List_of_HTTP_status_codes'>HTTP status codes</a> - Wikipedia </p></blockquote><p>Edit <code>test/practicalli/simple-api-server-test.clj</code> and create a <code>handler-test</code> function, using the <code>deftest</code> macro from the <code>clojure.test</code> library.</p><p>The test function has one assertion, defined using the <code>is</code> function.</p><p>The assertion compares two values using the <code>=</code> function.</p><p>The first value is <code>200</code>, the HTTP status that means <code>OK</code>.</p><p>The second value is obtained by calling the <code>handler</code> function from <code>src/practicalli/simple-api-server</code> namespace.  The result of that call is a response map.  The <code>:status</code> keyword is used as a function call, taking the response map as an argument, returning the value associated with <code>:status</code> in the response map.</p><pre><code class="clojure">&#40;deftest handler-test
+  &#40;testing &quot;Response to events&quot;
+    &#40;is &#40;= 200 &#40;:status &#40;SUT/handler {}&#41;&#41;&#41;&#41;&#41;&#41;
+</code></pre><h2 id="running&#95;tests">Running tests</h2><p>In a terminal window, use the Clojure CLI tools to start the test runner and run all the results.</p><pre><code class="shell">clj -A:test:runner
+</code></pre><blockquote><p> <strong>Spacemacs</strong> </p><p> <code>SPC u , s i</code> to edit the prompt for cider-jack-in </p><p> add <code>-A:test</code> at the front of the command line, after <code>clj</code>, and press <code>RET</code>.  The REPL starts and includes the test path in the classpath and allows cider.test to be run from CIDER </p><p> <code>, t a</code> will now run all tests when the cursor is in any of the Clojure files. </p><p> Alternatively, define a .dir-locals.el file as set <code>:test</code> as the CLI global option for CIDER  <code>&#40;&#40;clojure-mode . &#40;&#40;cider-clojure-cli-global-options . &quot;-A:test&quot;&#41;&#41;&#41;&#41;</code> </p></blockquote><h2 id="adding&#95;a&#95;function&#95;to&#95;stop&#95;the&#95;server">Adding a function to stop the server</h2><p>We can start the server, but unless we have a reference to the server we cannot send it instructions to shut down.</p><p>A brutal way to stop the server is to simply quit the Clojure REPL, however, we can do better than that.</p><h3 id="defining&#95;a&#95;reference&#95;for&#95;the&#95;server.">Defining a reference for the server.</h3><p>Using the <code>def</code> function we can bind a name to the calling of the <code>create-server</code> function.  Then we can use that name to send a timeout instruction and gracefully shut down the server.</p><p>Define a name for the server and keep that name private, so only functions in the current namespace can use that name.</p><pre><code class="clojure">&#40;defonce &#94;:private api-server &#40;create-server&#41;&#41;
+</code></pre><p>Now we can use the <code>api-server</code> name as a reference to the running server and send it commands.</p><pre><code class="clojure">&#40;api-server :timeout 100&#41;
+
+</code></pre><p>This is a simple approach, although we can use a Clojure <code>atom</code> instead.</p><h3 id="define&#95;a&#95;binding&#95;for&#95;the&#95;server&#95;state">Define a binding for the server state</h3><p>Define a Clojure atom that will hold a name that is bound to the server invocation when we start it.</p><p>When the <code>api-server</code> atom contains <code>nil</code> it means no server is running.</p><p>When the server is started we reset the <code>api-server</code> atom to contain a dynamic binding to the server.</p><p>The <code>api-server</code> atom can then be used to send a timeout to the running Jetty server process.</p><pre><code class="clojure">&#40;defonce &#94;:private api-server &#40;atom nil&#41;&#41;
+</code></pre><h3 id="stop&#95;server&#95;function">Stop server function</h3><p>The Jetty server can be gracefully shut down by passing <code>:timeout</code> with a value in milliseconds.</p><p>The server will stop listening for new requests.</p><p>Existing requests will be processed and hopefully finish before the timeout expires.</p><p>Then the Jetty server process stops.</p><p>Then the atom containing the server binding is <code>reset!</code> to <code>nil</code>, updating the state of the server to stopped in the Clojure code.</p><pre><code class="clojure">&#40;defn stop-server
+  &quot;Gracefully shutdown the server, waiting 100ms &quot;
+  &#91;&#93;
+  &#40;when-not &#40;nil? @api-server&#41;
+    ;; graceful shutdown: wait 100ms for existing requests to be finished
+    ;; :timeout is optional, when no timeout, stop immediately
+    &#40;@api-server :timeout 100&#41;
+    &#40;reset! api-server nil&#41;&#41;&#41;
+</code></pre><p>An updated <code>-main</code> function</p><pre><code class="clojure">&#40;defn -main &#91;&amp; args&#93;
+  ;; #' enables hot-reloading of the server
+  &#40;reset! api-server &#40;server/run-server #'handler {:port &#40;or &#40;first args&#41; 8080&#41;}&#41;&#41;&#41;
+</code></pre><h3 id="conditionally&#95;using&#95;a&#95;port&#95;number">Conditionally using a port number</h3><p>The <code>-main</code> function uses the <code>&amp; args</code> syntax for the argument.  This allows the <code>-main</code> function to be called with or without passing a value for the port.</p><p>We can use the <code>or</code> function to use a port number if it is passed as an argument.  If no port number is passed, then a default port number is used.</p><p>If <code>&#40;first args&#41;</code> is called when no argument is passed, then it is effectively same as <code>&#40;first &#91;&#93;&#41;</code>.  When evaluaed this returns <code>nil</code>.</p><pre><code class="clojure">&#40;defn oring &#91;&amp; args&#93;
+  &#40;or &#40;first args&#41;
+      8000&#41;&#41;
+
+&#40;oring&#41;
+;; =&gt; 8000
+
+&#40;oring 8888&#41;
+;; =&gt; 8888
+</code></pre><h3 id="conditional&#95;arguments&#95;for&#95;server&#95;configuration">Conditional arguments for server configuration</h3><p>Associative destructuring binds values from hash-maps to local symbols We can use default values if values are not passed as arguments & makes all arguments optional the <code>:or</code> map provides local symbols and their default values</p><pre><code class="clojure">&#40;defn optional-keys &#91;&amp; {:keys &#91;port timeout&#93;
+                        :or   {port 8000 timeout 100} }&#93;
+  &#40;str &quot;Port: &quot; port &quot;, timeout &quot; timeout &#41;&#41;
+</code></pre><p>call the function without arguments and the defaults are used</p><pre><code class="clojure">&#40;optional-keys&#41;
+;; =&gt; &quot;Port: 8000, timeout 100&quot;
+</code></pre><p>;; call with one argument, :port and 8888 are a single key-value pair, ;; the argument is used and the missing argument uses the default value.</p><pre><code class="clojure">&#40;optional-keys :port 8888&#41;
+;; =&gt; &quot;Port: 8888, timeout 100&quot;
+</code></pre><h3 id="use&#95;associated&#95;destructuring&#95;for&#95;multiple&#95;arguments">Use associated destructuring for multiple arguments</h3><p>Using an <code>or</code> statement within the function call to <code>run-server</code> arguments is okay when you have a single argument.  However it gets quite complex if you have multiple arguments</p><p>Associate destructuring can be used with the arguments passed to the server, in the argument list of the function definition.</p><p>Our function definition uses <code>&amp;</code> in the argument list to take any number of arguments.</p><p>A single pair of <code>{}</code> is used to pattern match on key values pairs at the top level.</p><p><code>:keys &#91;,,,&#93;</code> is used to to create local binding names from the matching keywords in the arguments passed.</p><pre><code class="clojure">&#40;defn -main
+  &quot;Start a httpkit server with a specific port
+  #' enables hot-reload of the handler function and anything that code calls&quot;
+  &#91;&amp; {:keys &#91;ip port&#93;
+      :or   {ip   &quot;0.0.0.0&quot;
+             port 8000}}&#93;
+  &#40;println &quot;INFO: Starting httpkit server on port:&quot; port&#41;
+  &#40;reset! api-server &#40;server/run-server #'handler {:port port}&#41;&#41;&#41;
+</code></pre><blockquote><p> The Httpkit server function includes an example of using <a href='https://github.com/http-kit/http-kit/blob/master/src/org/httpkit/server.clj#L84'>associative destructuring in the stop-server function</a> it returns and in the <a href='https://github.com/http-kit/http-kit/blob/master/src/org/httpkit/server.clj#L34'>server function argument list</a>. </p></blockquote><h3 id="starting&#95;the&#95;server">Starting the server</h3><p>Specify a specific port when starting the server<pre><code class="clojure">&#40;-main :port 8888&#41;
+;; =&gt; &quot;Port: 8888, timeout 100&quot;
+</code></pre></p><p>Or simply start the server on the default port using <code>&#40;-main&#41;</code></p><h3 id="stopping&#95;the&#95;server">Stopping the server</h3><p>Stopping the server is easy, just call the <code>stop-server</code> functions witout arguments.</p><pre><code class="clojure">&#40;stop-server&#41;
+</code></pre><p>The start and stop will look something like this.</p><p><img src="/blog/images/spacemacs-cider-repl-httpkit-server-start-stop.png" alt="Spacemacs - CIDER REPL - httpkit server start and stop" /></p><h2 id="summary">Summary</h2><p>This should demonstrate how relatively simple it is to create a web server in Clojure that can handle 600,00 concurrent requests.</p><p>This simple project can be extended to make the web server respond to different requests, based on the web address and type of the HTTP request (e.g. GET, POST).  As more features are added, tests should be written to ensure those features work correctly.</p><p>Adding specifications is a clean way to ensure a robust API service, checking the type of information being sent and received is of the correct form. <code>clojure.alpha.spec</code> and <code>pulmatic/schema</code> are two libraries that will provide this kind of checking.</p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/clojure-cli/">clojure-cli</a>
+    
+    <a href="/blog/tags/tools-deps/">tools-deps</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/webapp-routes-with-json/">&laquo; Clojure Webapp routing and APIs with JSON</a>
+        
+        
+        <a class="right" href="/blog/posts/streamline-contributions-with-github-pull-request-templates/">Streamline Contributions with GitHub Pull Request Templates &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/clojure-web-server-cli-tools-deps-edn/";
+            this.page.identifier = "Clojure web server from scratch with deps.edn";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

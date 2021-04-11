@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: Ubuntu install on Lenovo X1 Extreme 2nd Gen with RAID</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/lenovo-x1-extreme-gen2-ubuntu-install/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">15 December 2019</div>
+        
+    </div>
+    <h2>Ubuntu install on Lenovo X1 Extreme 2nd Gen with RAID</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+    <img class="topic" src="/blog/images/ubuntu-logo-name.png" alt="ubuntu logo" />
+    
+</div>
+<div>
+    
+    <p>A successful installation of Ubuntu 19.10 on the Lenovo X1 Extreme (gen2) laptop, configured with 2 solid state hard drives configured for RAID-0 with LLVM encrypted partitions.  , along with   The laptop is configured with 32Gb memory and 2 SSDs in RAID-0 configuration for speed</p><p>This laptop will be used for real-time video encoding for the Practicalli broadcasts via YouTube as well as doing some data science in Clojure.</p><p>This was a very smooth installation and all the hardware works correctly.  The nVidia open source drivers and WiFi adaptor did cause a little extra work, so I have included tips and troubleshooting guides to help you reslove these issues quickly.</p><p><!&ndash; more &ndash;></p><h2 id="getting&#95;the&#95;ubuntu&#95;install">Getting the Ubuntu Install</h2><p><a href='https://ubuntu.com/download/server'>Download Ubuntu server 19.10 iso image</a> to have the option of setting up RAID across multiple SSD's.  If RAID is not required then just use the <a href='https://ubuntu.com/download/desktop'>Ubuntu desktop 19.10 distribution</a>.</p><p>There is little point in configuring the Intel Rapid Raid in the BIOS as <a href='https://en.wikipedia.org/wiki/Mdadm'>Linux software raid (mdadm)</a> is much better.</p><p>Use the <strong><a href='https://tutorials.ubuntu.com/tutorial/tutorial-create-a-usb-stick-on-ubuntu'>Startup Disk Creator</a></strong> application on Ubuntu to burn the Ubuntu server image to a 1Gb USB memory stick Boot computer, press Enter for boot menu, F1 to open bios configuration</p><h2 id="configure&#95;the&#95;bios">Configure the Bios</h2><p>Switch on the computer and press <code>Enter</code> when you see the prompt to interrupt the system startup. Press <code>F1</code> to enter the BIOS configuration.</p><p>Make the following changes to the BIOS</p><ul><li>Disable Secure Boot: NVIDIA Drivers are not signed which makes Secure Boot interrupt the boot processit when it attempts to verify these drivers are trusted.</li><li>Disable Windows 10 fast startup if dual booting Windows and Linux.  When enabled it builds hibernation files on Windows reboot instead of a normal compuer shutdown.</li><li>Ubuntu can crash when loading the default  (open source driver). Consequently we will blacklist it and installing the NVIDIA proprietary driver which works fine.</li></ul><p>Save changes and reboot</p><h2 id="ubuntu&#95;server&#95;install">Ubuntu server install</h2><p>Follow the <a href='https://tutorials.ubuntu.com/tutorial/tutorial-install-ubuntu-server'>Ubuntu server install guide</a> with the following additional steps.</p><h3 id="temporarily&#95;blacklist&#95;ubuntu’s&#95;nouveau&#95;nvidia&#95;driver">Temporarily Blacklist Ubuntu’s Nouveau NVIDIA Driver</h3><p>In the GRUB menu press <code>E</code> to edit the command to boot the operating system</p><p>Type <code>nomodeset</code> at the end of the <code>linux</code> line</p><p>The Prevents the system from loading the Nouveau graphics drivers which cause issues and may hang the computer.  The Nouveau drivers will be permanently blacklisted once Ubuntu server is installed.</p><h3 id="section&#95;8:&#95;configure&#95;storage&#95;-&#95;raid">Section 8: Configure Storage - RAID</h3><p>If you have two solid state drives (SSD's) in the laptop you can configure a redundant array of disks (RAID).</p><p>RAID requires two or more unformatted partitions (ext4 and xfs partitions cannot be used). Partitions used in a RAID should have the same size partition.</p><p>Its not possible to boot from a RAID partition, so we need a separate partition for /boot</p><p>From the Configure Storage menu, select manual to open the partition editor</p><p>The following steps were used to create a raid array with logical volume management and encrypted disks.</p><ul><li>delete all existing partitions (wipes the Windows recovery partition too - only do this if you never want Windows)</li><li>create 250 Mb unformatted partition on each disk</li><li>create 476.939 Gb unformatted partition on each disk</li><li>create a RAID 0 partition using the two 476.939 Gb partitions (use RAID 1 if you want redundancy rather than speed/size)</li><li>create LVM on raid partition, set encryption on the disk (prompted for password when ever you boot the computer)</li><li>Format one of 250Mb partitons and set mount point to /boot</li><li>[optional] Format the remaining 250Mb partition how ever you want.  I left it unused</li></ul><p><img src="/blog/images/ubuntu-server-partitions-raid-zero.png" alt="Ubuntu Server - partitions - raid and llvm" /></p><p>Follow the rest of the <a href='https://tutorials.ubuntu.com/tutorial/tutorial-install-ubuntu-server'>Ubuntu server install guide</a> and reboot when finished.</p><blockquote><p> Use RAID-0 (striping) for maximum speed, allowing data to be written to both SSD storage devices in parallel.  Use RAID-1 (mirroring) for redundancy as data is copied to both storage devices. </p></blockquote><blockquote><p> If RAID-0 fails then it will not be possible to access any data, however, the whole space on the disk is available.  RAID-1 is safer as even if one partition or disk fails, then data can still be accessed. </p><p> All my development work, documments and configurations are saved to the cloud (usually multiple services), so even if one SSD should become corrupt, I would not loose any work. </p></blockquote><h2 id="installing&#95;a&#95;destkop&#95;environment">Installing a destkop environment</h2><p>The Ubuntu server does not install a desktop environment by default, but has access to all the same packages so its easy to add one.</p><p>Once the server is rebooted, login with your new account name and password.  This account has access rights to install software and configure the server using the <code>sudo</code> command.</p><h2 id="blacklist&#95;nouveau&#95;driver&#95;to&#95;avoid&#95;conflicts.">Blacklist Nouveau driver to avoid conflicts.</h2><p>Open up terminal and enter the following linux commands:</p><pre><code class="bash">sudo bash -c &quot;echo blacklist nouveau &gt; /etc/modprobe.d/blacklist-nvidia-nouveau.conf&quot;
+
+sudo bash -c &quot;echo options nouveau modeset=0 &gt;&gt; /etc/modprobe.d/blacklist-nvidia-nouveau.conf&quot;
+</code></pre><p>Confirm the content of the new modprobe config file:</p><pre><code class="bash">cat /etc/modprobe.d/blacklist-nvidia-nouveau.conf
+
+blacklist nouveau
+options nouveau modeset=0
+</code></pre><h3 id="install&#95;the&#95;nvidia&#95;closed&#95;source&#95;drivers">Install the nVidia closed source drivers</h3><p>The closed source nVidia drivers get the most out of the graphics card in the laptop.</p><p>The <code>ubuntu-drivers</code> command show you which drivers are recommended for your given hardware</p><pre><code class="bash">sudo ubuntu-drivers
+</code></pre><p>The same command can be used to automatically install the recommended driver.</p><pre><code class="sudo">sudo ubuntu-drivers autoinstall
+</code></pre><h3 id="install&#95;desktop&#95;environment">Install desktop environment</h3><p>Gnome is the default desktop environment for Ubuntu.  To install, use the following command</p><pre><code class="bash">sudo apt install ubuntu-desktop
+</code></pre><p>There are other desktop environments available.  List them using the command</p><pre><code class="bash">apt-cache search --names-only desktop
+
+ubuntu-desktop - The Ubuntu desktop system
+ubuntu-desktop-minimal - The Ubuntu desktop minimal system
+cinnamon-desktop-environment - Cinnamon desktop environment - full desktop with extra components
+desktop-base - common files for the Debian Desktop
+neurodebian-desktop - neuroscience-oriented distribution - desktop integration
+ros-desktop - Robot OS desktop metapackage
+autopilot-desktop - Autopilot support for the ubuntu Desktop platform
+autopilot-desktop-legacy - Autopilot support for the ubuntu Desktop platform
+budgie-desktop - Desktop package for budgie-desktop
+budgie-desktop-minimal - Minimal desktop environment for Ubuntu Budgie
+kde-plasma-desktop - KDE Plasma Desktop and minimal set of applications
+kubuntu-desktop - Kubuntu Plasma Desktop/Netbook system
+lubuntu-desktop - Lubuntu Desktop environment
+ubuntu-budgie-desktop - Ubuntu Budgie metapackage
+ubuntu-mate-desktop - Ubuntu MATE - full desktop
+ubuntu-unity-desktop - The Ubuntu Unity desktop system
+ubuntukylin-desktop - The Ubuntu Kylin desktop system
+ubuntustudio-desktop - Ubuntu Studio Desktop Package
+ukui-desktop-environment - UKUI Desktop Environment &#40;metapackage&#41;
+vanilla-gnome-desktop - Vanilla GNOME metapackage
+xubuntu-desktop - Xubuntu desktop system
+</code></pre><p>Use the command <code>apt-cache show</code> followed by the package name to see a description of that package.</p><h2 id="issues">Issues</h2><p>The nVidia driver issue is well known and solutions shared.  There was an unexpected issue with the WiFi.  It was unexpected because it wasn't actually an issue at all.</p><h3 id="update&#95;the&#95;firmware">Update the firmware</h3><p>If you have a custom build of the laptop it probably has the latest version of the firmware.  Pre-built laptops may not have the latest firmware version.</p><p>It is prudent to check anyway and you can see if there is an upgrade for your hardware using the <code>fwupdmgr</code> command</p><pre><code class="bash">sudo fwupdmgr update
+
+&#40;on the latest version, 0.1.27&#41;
+</code></pre><h3 id="wifi&#95;adaptor&#95;not&#95;recognised">WiFi adaptor not recognised</h3><p>If you have a Lenovo Ethernet adaptor plugged in (not the USB type) then WiFi is automatically disabled.  Unplug the Ethernet adaptor and WiFi hardware is automatically enabled (no reboot required).  Plugging the Ethernet adaptor back in will shut down the WiFi hardware, saving power.</p><p><img src="/blog/images/lenovo-x1-extreme-bios-network-wireless-auto-disconnection.png" alt="Lenovo X1 Extreme - Bios - network wireless auto-disconnection" /></p><p>If you are still having issues, ensure you are using kernel version 5.0.18 or greater (Ubuntu 19.10 has 5.0.23 at time of writing)</p><p>Start diagnosing the issue with the <code>lspci</code> command to see what hardware is detected.</p><pre><code class="bash">lspci | grep -i network
+
+jr0cket@whitestar:&#126;$ lspci | grep -i network
+52:00.0 Network controller: Intel Corporation Device 2723 &#40;rev 1a&#41;
+
+</code></pre><p>Then check to see if the network hardware is actually working.  The following was done with the Lenovo Ethernet adaptor plugged in, so disabling the WiFi hardware.</p><pre><code class="bash">iwconfig
+
+wlp82s0   IEEE 802.11  ESSID:off/any
+          Mode:Managed  Access Point: Not-Associated   Tx-Power=off
+          Retry short limit:7   RTS thr:off   Fragment thr:off
+          Power Management:on
+
+lo        no wireless extensions.
+
+enp0s31f6  no wireless extensions.
+</code></pre><p>Try the <a href='https://askubuntu.com/questions/1169616/ubuntu-19-04-wifi-not-working-on-lenovo-thinkpad-x1-extreme-gen-2'>suggestions on the askubuntu website</a></p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/ubuntu/">ubuntu</a>
+    
+    <a href="/blog/tags/hardware/">hardware</a>
+    
+    <a href="/blog/tags/thinkpad/">thinkpad</a>
+    
+    <a href="/blog/tags/lenovo/">lenovo</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">&laquo; Spacemacs - raising issues and pull requests</a>
+        
+        
+        <a class="right" href="/blog/posts/practicalli-youtube-website/">Practicalli YouTube Website &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/lenovo-x1-extreme-gen2-ubuntu-install/";
+            this.page.identifier = "Ubuntu install on Lenovo X1 Extreme 2nd Gen with RAID";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

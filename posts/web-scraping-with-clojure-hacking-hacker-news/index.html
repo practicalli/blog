@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: Web Scraping with Clojure - Scraping Hacker News</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">13 March 2020</div>
+        
+    </div>
+    <h2>Web Scraping with Clojure - Scraping Hacker News</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+    <img class="topic" src="/blog/images/clojure-logo-name.png" alt="clojure logo" />
+    
+</div>
+<div>
+    
+    <p><a href='https://github.com/cgrand/enlive'>Enlive</a> is a Clojure library that can be used for generating dynamic server-side content as well as scraping websites.</p><p>Scraping websites is sometimes required when they do not provide an API.  Although Hacker News does have an API, will show how to scrape its website using Enlive's selectors.</p><p><!&ndash; more &ndash;></p><h2 id="create&#95;a&#95;clojure&#95;project">Create a Clojure project</h2><p> We are using Clojure CLI and clj-new to create a new project</p><pre><code class="shell"> clojure -A:new app practicalli/webscraper
+ </code></pre><p>Add the Enlive library as a dependency to the <code>deps.edn</code> file in the newly created project, along with clojure which should already be there as a dependency.</p><pre><code class="clojure"> :deps
+ {org.clojure/clojure {:mvn/version &quot;1.10.1&quot;}
+  enlive              {:mvn/version &quot;1.1.6&quot;}}
+</code></pre><p>Now we are read to start the REPL, either via your editor, using <code>clj</code> or using rebel readline <code>clojure -A:rebel</code> if installed.</p><blockquote><p> See details of how to install these </p></blockquote><p>Open the <code>src/practicalli/webscraper-enlive.clj</code> file and add code for our scraper</p><h2 id="adding&#95;a&#95;website&#95;to&#95;scrape">Adding a website to scrape</h2><p>A <code>def</code> function could be used to bind the URL to a name</p><pre><code class="clojure">&#40;def hacker-news-url &quot;https://news.ycombinator.com/&quot;&#41;
+</code></pre><p>Enlive will scrape a website using the <code>html-resource</code> function, which takes an HTML object (<code>java.net.URL</code>) and converts it into a nested Clojure data structure, a bit like a simplfied Document Object Model (DOM).</p><pre><code class="clojure">&#40;html/html-resource &#40;java.net.URL. hacker-news-url&#41;&#41;
+</code></pre><p>The <code>html-resource</code> function returns a sequence of hash-maps, containing Clojure keywords that represent the HTML tags and CSS styles.</p><p>Here is just a small part of this output, specifically around the <code>&lt;td class=&quot;title&quot;&gt;</code> tag</p><pre><code class="clojure">{:tag :td,
+                  :attrs {:class &quot;title&quot;},
+                  :content
+                  &#40;{:tag :a,
+                    :attrs
+                    {:href
+                     &quot;https://www.roadandtrack.com/new-cars/car-technology/a31451281/koenigsegg-gemera-engine-specs-analysis/&quot;,
+                     :class &quot;storylink&quot;},
+                    :content
+                    &#40;&quot;Koenigsegg’s 2.0-Liter No-Camshaft Engine Makes 600 Horsepower&quot;&#41;}
+                   {:tag :span,
+                    :attrs {:class &quot;sitebit comhead&quot;},
+                    :content
+                    &#40;&quot; &#40;&quot;
+                     {:tag :a,
+                      :attrs {:href &quot;from?site=roadandtrack.com&quot;},
+                      :content
+                      &#40;{:tag :span,
+                        :attrs {:class &quot;sitestr&quot;},
+                        :content &#40;&quot;roadandtrack.com&quot;&#41;}&#41;}
+                     &quot;&#41;&quot;&#41;}&#41;}
+</code></pre><h2 id="caching&#95;scraped&#95;websites">Caching scraped websites</h2><p>When we are developing a scraping app we could end up hitting a website hundreds (thousands) of times and if lots of people did that it would not be good for that website.</p><p>Using the caching nature of the <code>def</code> function, we can bind the result of calling the website to a name.  Each subsequent time the name bound to the results is evaluated, the existing data is used and the website is not visited.  This can also speed up your development if there is a slow connection to that website.</p><pre><code class="clojure">&#40;def website-content-hacker-news
+  &quot;Get website content from Hacker News
+  Returns: list of html content as hash-maps&quot;
+
+  &#40;html/html-resource &#40;java.net.URL. hacker-news-url&#41;&#41;&#41;
+</code></pre><blockquote><p> Note: alternatively you could use a command line tool to pull down a website to a file, allowing you to work with the file outside the REPL. </p></blockquote><h2 id="inspecting&#95;what&#95;to&#95;scrape">Inspecting what to scrape</h2><p>There is typically a lot of structure and styling around the content of a web page, so finding the right starting point is sometimes tricky.  Using a browers Inspector tool can help find the right tags quickly.</p><p>With the website open in your browser, use the Inspect Element tool to look for unique HTML tags and CSS classes that surround the content you need.</p><p>Inspecting the headings in hacker news webpage, the text of each headline is inside a <code>td</code> tag, a table data cell.  The headings <code>td</code> tag has as a CSS style called <code>title</code>, so it can be referenced as <code>.td.title</code></p><h2 id="getting&#95;selective&#95;with&#95;webpage&#95;content">Getting Selective with webpage content</h2><p>Enlive uses selectors to extract specific content from the website content.</p><p>Selectors are define as a vector containing keywords that represent the HTML tags and CSS classes in the original web page.</p><p>To get all the matching headings we use a selector with the Enlive <code>select</code> function on the parsed</p><pre><code class="clojure">&#40;html/select website-content-hacker-news &#91;:td.title :a&#93;&#41;
+</code></pre><p>This returns a Clojure data structure containing any matching parts of the website.</p><p>To see the results clearly, we can either pretty print them or just take the first part of the data structure.</p><pre><code class="clojure">&#40;take 1
+  &#40;html/select website-content-hacker-news &#91;:td.title :a&#93;&#41;&#41;
+</code></pre><p>Example output:</p><pre><code class="clojure">;; =&gt; &#40;{:tag :a,
+;;      :attrs {:href &quot;https://www.roadandtrack.com/new-cars/car-technology/a31451281/koenigsegg-gemera-engine-specs-analysis/&quot;, :class &quot;storylink&quot;},
+;;      :content &#40;&quot;Koenigsegg’s 2.0-Liter No-Camshaft Engine Makes 600 Horsepower&quot;&#41;}&#41;
+</code></pre><p>The Enlive <code>text</code> function extracts the value from the <code>:content</code> key. Mapping the <code>text</code> function over our selected keys returns just the content we want</p><pre><code class="clojure">&#40;map html/text
+     &#40;html/select
+       website-content-hacker-news
+       &#91;:td.title :a&#93;&#41;&#41;
+</code></pre><p>This will return a list of all the matching headlines, each headline will be a string.</p><pre><code class="clojure">&#40;&quot;Koenigsegg’s 2.0-Liter No-Camshaft Engine Makes 600 Horsepower&quot; &quot;roadandtrack.com&quot; &quot;Git Partial Clone lets you fetch only the large file you need&quot; &quot;gitlab.com&quot; &quot;Pence says European travel ban will extend to U.K. and Ireland&quot; &quot;axios.com&quot; &quot;Coronavirus has caused a bicycling boom in New York City&quot; &quot;grist.org&quot; &quot;Iceland radically cut teenage drug use&quot; &quot;weforum.org&quot;&#41;
+</code></pre><h2 id="enlive&#95;selectors">Enlive Selectors</h2><p>Enlive selectors are data structures that identify one or more HTML nodes. They describe a pattern of data—​if the pattern matches any nodes in the HTML data structure, the selector will select those nodes. A selector may select one, many, or zero nodes from a given HTML document, depending on how many matches the pattern has.</p><p>The full reference for valid selector forms is quite complex, and beyond the scope of this recipe. See the formal selector specification for complete documentation.</p><p>The following selector patterns should be sufficient to get you started:</p><p>[:div]</p><pre><code>Selects all &lt;div&gt; element nodes.</code></pre>[:div.sidebar]<pre><code>Selects all &lt;div&gt; element nodes with a CSS class of &quot;sidebar&quot;.</code></pre>[:div#summary]<pre><code>Selects the &lt;div&gt; element with an HTML ID of &quot;summary&quot;.</code></pre>[:p :span]<pre><code>Selects all &lt;span&gt; elements that are descendants of &lt;p&gt; elements.</code></pre>[:div.menu :ul :li :span]<pre><code>Selects only &lt;span&gt; elements inside an &lt;li&gt; element inside a &lt;ul&gt; element inside a &lt;div&gt; element with a CSS style of &quot;menu&quot;.</code></pre>[[:div (nth-child 2)]]<pre><code>Selects all &lt;div&gt; elements that are the second children of their parent elements. The double square brackets are not a typo—​the inner vector is used to denote a logical and condition. In this case, the matched element must be a &lt;div&gt;, and the nth-child predicate must hold true.</code></pre><p>Other predicates besides nth-child are available, as well as the ability to define custom predicates. See the Enlive documentation for more details.</p><p>Finally, there is a special type of selector called a range selector that is not specified by a vector, but rather by a map literal (in curly braces). The range selector contains two other selectors and inclusively matches all the nodes between the two matched nodes, in document order. The starting node is in key position in the map literal and the ending node is in value position, so the selector {[:#foo] [:#bar]} will match all nodes between nodes with a CSS ID of "foo" and a CSS ID of "bar".</p><p>The example in the solution uses a range selector in the defsnippet form to select all the nodes that are part of the same logical blog post, even though they aren’t wrapped in a common parent element.</p><h2 id="getting&#95;the&#95;voting&#95;points">Getting the voting points</h2><p>Each heading can be voted for, which I believe keeps it on the site longer.  The points and when the article was posted can be pulled out using different selectors.</p><p><img src="/blog/images/webscraping-web-browser-inspector-hacker-news-points-subtext.png" alt="Webscraper - Browser Inspector - points subtext" /></p><p>The <code>.td.subtext</code> has several <code>span</code> tags as children and each <code>span</code> tag has a CSS selector, however, those CSS selectors are dynamically generated and therefore random.</p><p>So the Enlive <code>first-child</code> function is used to get the <code>span</code> content.</p><p>Then the Enlive <code>text</code> function pulls out all the values from the <code>:content</code> keys in the selected content.</p><pre><code class="clojure">&#40;map html/text
+       &#40;html/select
+         website-content-hacker-news
+         &#91;:td.subtext html/first-child&#93;&#41;&#41;
+</code></pre><h2 id="make&#95;functions&#95;to&#95;get&#95;headings&#95;and&#95;points">Make functions to get headings and points</h2><p>The headings function</p><pre><code class="clojure">&#40;defn headlines
+  &quot;Headlines of the currently published stories
+
+  Arguments: web address as a string
+  Returns: list of headlines as strings&quot;
+
+  &#91;website-url&#93;
+
+  &#40;map html/text
+       &#40;html/select
+         #&#95;&#40;website-content website-url&#41;
+         ;; DEV: cached website
+         website-content-hacker-news
+         &#91;:td.title :a&#93;&#41;&#41;&#41;
+</code></pre><p>The points function</p><pre><code class="clojure">&#40;defn article-scoring
+  &quot;Points of the currently published stories
+
+  Arguments: web address as a string
+  Returns: headlines in hiccup format &quot;
+
+  &#91;website-url&#93;
+
+  &#40;map html/text
+       &#40;html/select
+         ;; &#40;website-content website-url&#41;
+         ;; DEV: cached website
+         website-content-hacker-news
+         &#91;:td.subtext html/first-child&#93;&#41;&#41;&#41;
+</code></pre><h2 id="combining&#95;the&#95;results">Combining the results</h2><p>A function to combine the results of heading and points</p><pre><code class="clojure">&#40;defn headlines-and-scoring
+  &quot;Putting it all together...&quot;
+  &#91;website-url&#93;
+  &#40;doseq &#91;line &#40;map #&#40;str %1 &quot; &#40;&quot; %2 &quot;&#41;&quot;&#41;
+                    &#40;headlines website-url&#41;
+                    &#40;article-scoring website-url&#41;&#41;&#93;
+    &#40;println line&#41;&#41;&#41;
+</code></pre><p>This function uses <code>doseq</code> to iterate over each line and print the results to the REPL (or standard out if run as a command line program).  <code>doseq</code> itself returns <code>nil</code>.</p><p>For each line that is printed, we map an anonymous function over the two collections, one collection from each of our functions <code>headlines</code> and <code>article-scoring</code></p><p>The anonymous function gets a value from each of the collections and combines them in a string, putting the value from the second collection, <code>article-scoring</code> in round brackets.</p><pre><code class="clojure">#&#40;str %1 &quot; &#40;&quot; %2 &quot;&#41;&quot;&#41;
+</code></pre><h2 id="combining&#95;selectors">Combining selectors</h2><p>The selectors passed to Enlive's <code>select</code> function can be combined in a Clojure set.</p><p>So to get both headings and scoring we can use the following set as an arguments</p><pre><code class="clojure">#{&#91;:td.title :a&#93; &#91;:td.subtext html/first-child&#93;}
+</code></pre><p>Then we can combine the prevous <code>headings</code> and <code>article-scoring</code> functions into a single function.</p><pre><code class="clojure">&#40;defn headlines-and-scoring &#91;&#93;
+  &#40;map html/text
+       &#40;html/select website-content-hacker-news
+                    #{&#91;:td.title :a&#93; &#91;:td.subtext html/first-child&#93;}&#41;&#41;&#41;
+</code></pre><p>The results of this function have the headings and scoring interleaved.  Using the Clojure <code>partition</code> function pairs each heading and score</p><p>The anonymous function is updated to destructure the arguments, so we get a separate heading and score, which is then assembled in the same string form.</p><pre><code class="clojure">&#40;defn print-headlines-and-scoring &#91;&#93;
+  &#40;doseq &#91;line &#40;map &#40;fn &#91;&#91;h s&#93;&#93; &#40;str h &quot; &#40;&quot; s &quot;&#41;&quot;&#41;&#41;
+                    &#40;partition 2 &#40;headlines-and-scoring&#41;&#41;&#41;&#93;
+    &#40;println line&#41;&#41;&#41;
+</code></pre><h2 id="summary">Summary</h2><p>This just touches on the basics of Enilve and more examples will come in future articles.</p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/clojure/">clojure</a>
+    
+    <a href="/blog/tags/web-scraper/">web-scraper</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/visualising-uk-covid19-data-with-oz/">&laquo; Visualising UK Covid19 data with Clojure and Oz</a>
+        
+        
+        <a class="right" href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/web-scraping-with-clojure-hacking-hacker-news/";
+            this.page.identifier = "Web Scraping with Clojure - Scraping Hacker News";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

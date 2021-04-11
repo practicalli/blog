@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: Development Workflow with Clojure CLI tools</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/development-workflow-with-clojure-cli-tools/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">4 August 2019</div>
+        
+    </div>
+    <h2>Development Workflow with Clojure CLI tools</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+    <img class="topic" src="/blog/images/clojure-cli-logo-name.png" alt="clojure-cli logo" />
+    
+</div>
+<div>
+    
+    <p>Continuing our exploration with Clojure CLI tools, we will discuss what what templates are available to help us create project,  Then we will create a new ClojureScript project using figwheel-main and show the different builds we can use to provide several workflows for developing, testing and deploying an application.</p><p>We will create a new project using the <a href='https://github.com/bhauman/figwheel-main-template'>figwheel-main template</a>, explaining that we need to specify <code>organisation/project-name</code> or <code>organisation.project-name</code> for the <code>clj-new</code> templates to work properly.</p><p>Then run the project using the <code>-A:fig:build</code> alias to run with rebel readline to our user account version of <code>deps.edn</code> so it is available for all projects.  Then we will run a test runner and see the auto-testing monitoring.  Finally we will show ways to configure a deploy workflow that we can use with GitHub</p><p>This article is also covered in <a href='https://youtu.be/uuxEYsX-1eg'>Practicalli Clojure study group #38 video</a></p><p>Please see earlier articles in this series for background:</p><ul><li><a href='http://jr0cket.co.uk/2019/07/gaining-confidence-with-Clojure-CLI-tools.html'>Experimenting With Clojure CLI Tools Options</a></li><li><a href='http://jr0cket.co.uk/2019/07/a-deeper-understanding-of-Clojure-CLI-tools.html'>A Deeper Understanding of Clojure CLI Tools</a></li><li><a href='http://jr0cket.co.uk/2019/07/getting-started-with-Clojure-CLI-tools.html'>Getting Started With Clojure CLI Tools</a></li></ul><p><!&ndash; more &ndash;></p><h2 id="creating&#95;projects&#95;from&#95;templates">Creating projects from templates</h2><p>In previous articles we have seen that we can use <code>clj-new</code> to create projects using a number of templates.  This tool works with most Leiningen and Boot projects, however, it does not provide a <code>deps.edn</code> configuration file if the template itself does not.  It should be easy enough to create your own from the project configuration file that is created by a Leiningen or Boot template (depending on how complex the template is).</p><h2 id="create&#95;a&#95;new&#95;project&#95;using&#95;the&#95;figwheel-main&#95;template">Create a new project using the figwheel-main template</h2><p>Using the <a href='https://github.com/bhauman/figwheel-main-template'>figwheel-main template</a> we can create a new figwheel-main project with the comand:</p><pre><code class="shell">clojure -A:new figwheel-main hello-world.core -- --reagent
+</code></pre><p>This creates a basic project with several aliases defined in the <code>deps.edn</code> file for the project</p><pre><code class="clojure">{:deps {org.clojure/clojure {:mvn/version &quot;1.10.0&quot;}
+        org.clojure/clojurescript {:mvn/version &quot;1.10.339&quot;}
+        reagent {:mvn/version &quot;0.8.1&quot;}}
+ :paths &#91;&quot;src&quot; &quot;resources&quot;&#93;
+ :aliases {:fig {:extra-deps
+                  {com.bhauman/rebel-readline-cljs {:mvn/version &quot;0.1.4&quot;}
+                   com.bhauman/figwheel-main {:mvn/version &quot;0.1.9&quot;}}
+                 :extra-paths &#91;&quot;target&quot; &quot;test&quot;&#93;}
+           :build {:main-opts &#91;&quot;-m&quot; &quot;figwheel.main&quot; &quot;-b&quot; &quot;dev&quot; &quot;-r&quot;&#93;}
+           :min   {:main-opts &#91;&quot;-m&quot; &quot;figwheel.main&quot; &quot;-O&quot; &quot;advanced&quot; &quot;-bo&quot; &quot;dev&quot;&#93;}
+           :test  {:main-opts &#91;&quot;-m&quot; &quot;figwheel.main&quot; &quot;-co&quot; &quot;test.cljs.edn&quot; &quot;-m&quot; practicalli.test-runner&#93;}}}
+</code></pre><ul><li><code>:fig</code> adds the figwheel-main and rebel-readline libraries as dependencies</li><li><code>:build</code> runs figwheel-main and creates a build of the project code and tests</li><li><code>:min</code> creates a minified single JavaScript file for deployment</li><li><code>:test</code> runs all the tests once using the test-runner</li></ul><p>We will explore these builds and the workflow they provide as we go through this article.</p><h2 id="running&#95;figwheel">Running figwheel</h2><p>We can run figwheel by specifying <code>figwheel-main</code> as the main namespace.  Figwheel will run a browser and connect to its JavaScript REPL, sending any code we type there to be evaluated..</p><pre><code class="shell">clojure -A:fig -m figwheel.main
+</code></pre><blockquote><p>  <a href='https://practicalli.github.io/blog/posts/cider-jack-in-to-clojure-cli-projects-from-spacemacs/'>Running a deps.edn project from CIDER (Emacs/Spacemacs)</a> may require a <code>.dir-locals.el</code> file to set which alias you wish to run by default.  CIDER version 0.23 onwards should offer you a choice of alias to run. </p></blockquote><p>The browser will show the default figwheel website that contains basic instructions on how to work with figwheel.</p><p><img src="/blog/images/figwheel-main-REPL-host-page.png" alt="figwheel-main - REPL host page" /></p><p><code>com.bhauman/rebel-readline-cljs</code> is defined as a dependency in the <code>:fig</code> alias in the project <code>deps.edn</code>.  This allows figwheel to detect the presence of rebel readline and use it when starting the ClojureScript REPL, to give a very interactive command line.  If rebel readline is dectected you will see the following line a few lines before the <code>cljs.user=&gt;</code> prompt.</p><pre><code>&#91;Rebel readline&#93; Type :repl/help for online help info
+This confirms that we are using Rebel Readline.
+</code></pre><p><img src="/blog/images/clojure-cli-tools-figwheel-main-rebel-readline-map.png" alt="Clojure CLI tools - Figwheel-main - rebel readline" /></p><p>If you type :repl/help command at the prompt, as you type you immediately notice that :repl/help character are syntax highlighted. Upon hitting enter, you will see a useful reference for the REPL’s capabilities displayed.</p><p><img src="/blog/images/figwheel-main-repl-help.png" alt="Figwheel-main - repl help" /></p><blockquote><p> Use the <code>clojure</code> command when using rebel-readline.  The <code>clj</code> command provides it’s own terminal line reader </p></blockquote><p>We can call expressions in the REPL prompt, for example some typical ClojureScript such as <code>&#40;map inc &#91;2 4 6 8&#93;&#41;</code></p><p>Or we can evaluate some JavaScript interop code and see things change in the browser <code>&#40;js/alert &quot;Notification from the command line&quot;&#41;</code></p><h2 id="running&#95;figwheel&#95;and&#95;building&#95;the&#95;project">Running figwheel and building the project</h2><p>So far we have only run figwheel, however, our template did create some simple code that we can run that displays a website.</p><p>The template also added more aliases that defined different ways to build a project.</p><p>When developing we would typically run the <code>:build</code> alias along with <code>:fig</code></p><p><code>clojure -A:fig:build</code></p><p><img src="/blog/images/figwheel-main-project-hello-world.png" alt="Figwheel-main - project - hello world" /></p><blockquote><p> when we look in the project <code>deps.edn</code> file we can see the details of the command that the <code>build</code> alias uses  <code>:build {:main-opts &#91;&quot;-m&quot; &quot;figwheel.main&quot; &quot;-b&quot; &quot;dev&quot; &quot;-r&quot;&#93;}</code> </p><p>  This configuration is the equivalent of running the command <code>clojure -A:fig -m figwheel.main -b dev -r</code> </p><p> This command uses the <code>:fig</code> alias to add figwheel-main and rebel readline libraries, sets <code>figwheel-main</code> as the main namespace, the build as <code>dev</code> and <code>-r</code> to run a REPL. </p></blockquote><h2 id="running&#95;tests&#95;once">Running tests once</h2><p>The source code for tests are placed under the top level <code>test</code> directory and uses a directory path that matches their namespace, matching those in <code>src</code>.  Source code files test a matching namespace and have <code>-test</code> added to the end of their name.  For example, if we have a source namespace of <code>practicalli.hello-world</code>, the tests would be in <code>practicalli.hello-world-test</code>.</p><p>We can run tests created by the <code>figwheel-main</code> template by running <code>clojure</code> with the <code>:test</code> alias.</p><blockquote><p> As before, the <code>:fig</code> alias pulls in the <code>figwheel-main</code> and <code>rebel-readline</code> dependencies. </p></blockquote><pre><code class="shell">clojure -A:fig:test
+</code></pre><p>This will open a browser and connect to its JavaScript REPL and run the tests.  The results can be seen in the terminal window from where you ran the <code>clojure</code> command.</p><p><img src="/blog/images/figwheel-main-test-output-terminal.png" alt="Figwheel-main - test output in terminal" /></p><p>The <code>:test</code> alias sets <code>figwheel.main</code> as the main namespace so it can run the figwheel test-runner functions</p><p><code>:test  {:main-opts &#91;&quot;-m&quot; &quot;figwheel.main&quot; &quot;-co&quot; &quot;test.cljs.edn&quot; &quot;-m&quot; practicalli.test-runner&#93;}</code></p><h2 id="continuous&#95;testing">Continuous testing</h2><p>Running a figwheel-main build will also include continuous testing service, so you can instantly see the results of your tests.</p><pre><code class="shell">clojure -A:fig:build
+</code></pre><p>http://localhost:9500/figwheel-extra-main/auto-testing will show the live results of running the tests.</p><p><img src="/blog/images/figwheel-main-tests-auto-testing-webpage.png" alt="Figwheel-main - tests - auto-testing webpage results" /></p><p>You may see the auto-testing host page display before showing the tests</p><p><img src="/blog/images/figwheel-main-tests-auto-testing-host-page.png" alt="Figwheel-main - tests - auto-testng host page" /></p><h2 id="packaging&#95;up&#95;a&#95;single&#95;compiled&#95;artifact&#95;for&#95;production">Packaging up a single compiled artifact for production</h2><p>The building of ClojureScript applications generates lots of files under <code>target/public</code>, as this is the most efficient way to manage changes to your application during development.  Using only a single file when deploying your application to the live system makes your application website faster to load (only one http request).</p><blockquote><p> The ClojureScript compiler has four :optimizations modes :none, :whitespace, :simple and :advanced. </p></blockquote><p>The <code>figwheel-main</code> template provides a <code>:min</code> alias to generate a single minified file that has been run through the Google Closure compiler to eliminate any uncalled code.  This generates a single file called <code>target/public/cljs-out/dev-main.js</code></p><p>You can manually copy this file to a suitable deployment directory when you publish your application live.</p><h3 id="deploying&#95;to&#95;github&#95;pages">Deploying to GitHub pages</h3><p><a href='https://pages.github.com/'>GitHub pages</a> provides a fast and free service for running a website (html, css and JavaScript files).  You can run a website by placing all the files in a <code>docs</code> directory.</p><p>Rather than manually copy the <code>dev-main.js</code> file each time you want to deploy, create a new build configuration to output the single JavaScript file to a different location.</p><p>Create a file called <code>github-pages.cljs.edn</code> to represent a new build and add the following configuration</p><pre><code class="clojure">{:main practicalli.hello-world
+ :output-to &quot;docs/cljs-out/dev-main.js&quot;}
+</code></pre><p>Then edit the <code>deps.edn</code> file and change the <code>:min</code> alias to use the <code>deploy</code> build</p><pre><code class="clojure">:min {:main-opts &#91;&quot;-m&quot; &quot;figwheel.main&quot; &quot;-O&quot; &quot;advanced&quot; &quot;-bo&quot; &quot;github-pages&quot;&#93;}
+</code></pre><p>Instead of changing the <code>:min</code> alias, you could also add a new alias to deploy to GitHub pages directory.</p><pre><code class="clojure">:github-pages {:main-opts &#91;&quot;-m&quot; &quot;figwheel.main&quot; &quot;-O&quot; &quot;advanced&quot; &quot;-bo&quot; &quot;github-pages&quot;&#93;}
+</code></pre><blockquote><p> See <a href='https://figwheel.org/tutorial#packaging-up-a-single-compiled-artifact-for-production'>package a single file for production</a> for more details. </p></blockquote><h2 id="summary">Summary</h2><p>It is very easy to add aliases and build configurations to customise the workflows you use for your Clojure CLI tools project.  As all the configuration files are in EDN, they are Clojure maps and therefore very easy to work with and understand.</p><p>There are more examples of options for figwheel-main projects on the https://figwheel.org/ website.</p><p>Thank you. <a href='https://twitter.com/jr0cket'>@jr0cket</a></p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/clojure-cli/">clojure-cli</a>
+    
+    <a href="/blog/tags/tools-deps/">tools-deps</a>
+    
+    <a href="/blog/tags/figwheel-main/">figwheel-main</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/community-tools-for-clojure-cli/">&laquo; Community projects for Clojure CLI tools</a>
+        
+        
+        <a class="right" href="/blog/posts/gaining-confidence-with-Clojure-CLI-tools/">Gaining confidence with Clojure CLI tools &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/development-workflow-with-clojure-cli-tools/";
+            this.page.identifier = "Development Workflow with Clojure CLI tools";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

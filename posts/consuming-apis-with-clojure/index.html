@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: Consuming APIs from Clojure</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/consuming-apis-with-clojure/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">30 November 2019</div>
+        
+    </div>
+    <h2>Consuming APIs from Clojure</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+    <img class="topic" src="/blog/images/clojure-cli-logo-name.png" alt="clojure-cli logo" />
+    
+</div>
+<div>
+    
+    <p>When getting results from API calls, its very common to recieve data in JavaScript Object Notation (JSON).</p><p>Once we have the JSON data, it is converted to a Clojure data structure to use the hundreds of functions in clojure.core that can readily transform the shape of that data.</p><p>We can process this with the clojure.data.json library and community projects including cheshire and transit.</p><p>Clojure has several ways to get any web resource, from a simple function call to <code>slurp</code>, via clj-http and httpkit clients. There are useful tools to help you test APIs, such as <a href='https://www.getpostman.com/'>Postman</a> and Swagger.</p><p><!&ndash; more &ndash;></p><h2 id="creating&#95;a&#95;project">Creating a project</h2><p>By creating a project you can keep all your code and results of executing code too. You can also just run all this code in the REPL if you wish.</p><p>If you have <code>clj-new</code> installed, then run the following in a terminal</p><pre><code class="shell">clojure -A:new app practicalli/simple-api-client
+</code></pre><p>Otherwise, simply clone the <a href='https://github.com/practicalli/simple-api-client'>practicalli/simple-api-client</a> repository.</p><h2 id="getting&#95;content">Getting content</h2><p>The <code>slurp</code> function is a convenient way of getting content from the web, or from local files too.  <code>Slurp</code> is defined in <code>clojure.core</code> so is always available in Clojure.</p><p>For example, we can get a book from Project Guttenberg  very easily.</p><pre><code class="clojure">&#40;slurp &quot;http://www.gutenberg.org/cache/epub/844/pg844.txt&quot;&#41;
+</code></pre><p>This returns the whole text of "The Importance of Being Earnest" book as a single string.</p><p><img src="/blog/images/clojure-webapps-client-slurp-guttenberg-result.png" alt="Clojure slurp - getting a book from project Guttenberg" /></p><h2 id="getting&#95;an&#95;api">Getting an API</h2><p>A simple scoreboard API was deployed in episodes <a href='https://www.youtube.com/watch?v=U6OAdQqWegQ&list=PLpr9V-R8ZxiDjyU7cQYWOEFBDR1t7t0wv&index=19&t=0s'>16</a> and <a href='https://www.youtube.com/watch?v=Bna3hxgO97k&list=PLpr9V-R8ZxiDjyU7cQYWOEFBDR1t7t0wv&index=20&t=0s'>17</a> of the Clojure study group.</p><p>All the <a href='https://game-scoreboard-api.herokuapp.com/index.html'>API documentation is published within the website</a> and provides an interactive dashboard to test API calls.  This is provided by the Swagger library.</p><p>A random score is returned by calling the <code>game/random-score</code> URL.  This generates a random player-id and score and adds it to the scoreboard.</p><pre><code class="clojure">&#40;slurp &quot;https://game-scoreboard-api.herokuapp.com/game/random-score&quot;&#41;
+
+;; =&gt; &quot;&#91;{\&quot;player-id\&quot;:\&quot;f26fd417-5ac5-4bac-bfda-88342e632ee1\&quot;,\&quot;score\&quot;:31121164},{\&quot;player-id\&quot;:\&quot;0f414b43-d82e-4164-9a31-ec81fac03160\&quot;,\&quot;score\&quot;:95542596},{\&quot;player-id\&quot;:\&quot;9b9eada5-8a9a-4115-aa58-2567688d4055\&quot;,\&quot;score\&quot;:29895185}&#93;&quot;
+</code></pre><p>The current scoreboard can be viewed at:</p><pre><code class="clojure">&#40;slurp &quot;https://game-scoreboard-api.herokuapp.com/game/scoreboard&quot;&#41;
+
+;; =&gt; &quot;&#91;{\&quot;player-id\&quot;:\&quot;f26fd417-5ac5-4bac-bfda-88342e632ee1\&quot;,\&quot;score\&quot;:31121164},{\&quot;player-id\&quot;:\&quot;0f414b43-d82e-4164-9a31-ec81fac03160\&quot;,\&quot;score\&quot;:95542596},{\&quot;player-id\&quot;:\&quot;9b9eada5-8a9a-4115-aa58-2567688d4055\&quot;,\&quot;score\&quot;:29895185}&#93;&quot;
+</code></pre><blockquote><p> The scores are saved into an Clojure atom, so each time the application restarts the scoreboard reset to empty.  If the application is not used for 30 minutes, then Heroku will shut down the application (the application is not on an Heroku paid plan, just on free monthly credits). </p></blockquote><p>Using <code>slurp</code> the data returned from the API is placed into a string, which is not a Clojure collection (although some Clojure functions will treat a string as a collection of characters).</p><p>As its a string, any special characters contained within are escaped using the <code>&amp;#8216; to ensure the string can be processed correctly.  For example, where the data returned contains a double quote, </code>"player-name"`, then each double quote is escaped.  This is adding a transformation to the data that isn't very useful.</p><h2 id="converting&#95;to&#95;clojure">Converting to Clojure</h2><p>In the simple server we used <code>clojure.data</code> library to generate JavaScript Object Notation from a Clojure data structure, specifically a Clojure hash-map.</p><p>We can use <code>clojure.data.json</code> to turn our JSON string into a Clojure data structure.</p><p>Add <code>clojure.data.json</code> as a dependency to the project.</p><p>Edit <code>deps.edn</code> and add <code>org.clojure/data.json {:mvn/version &quot;0.2.7&quot;}</code> to the <code>:deps</code> map.</p><pre><code class="clojure">:deps
+ {org.clojure/clojure   {:mvn/version &quot;1.10.1&quot;}
+  org.clojure/data.json {:mvn/version &quot;0.2.7&quot;}}
+</code></pre><p>Then add <code>clojure.data.json</code> to the project namespace.</p><p>Edit the <code>src/practicalli/simple-api-client.clj</code> and require the <code>clojure.data.json</code> namespace</p><pre><code class="clojure">&#40;ns practicalli.simple-api-client
+  &#40;:gen-class&#41;
+  &#40;:require &#91;clojure.data.json :as json&#93;&#41;&#41;
+</code></pre><p>Now use the <code>read-str</code> function to read in the JSON data that was returned by the response as a string.</p><p>Write the following function call in <code>src/practicalli/simple-api-client.clj</code> or start a REPL using <code>clj</code> or <code>clojure -A:rebel</code> if rebel readline is installed.</p><pre><code class="clojure">&#40;json/read-str
+  &#40;slurp &quot;https://game-scoreboard-api.herokuapp.com/game/scoreboard&quot;&#41;&#41;
+;; =&gt; &#91;{&quot;player-id&quot; &quot;0724e6cc-5c04-4a61-b3b6-d10624feed0e&quot;, &quot;score&quot; 41726706}
+;;     {&quot;player-id&quot; &quot;36b521b2-078a-4581-9705-fa54fc1e89b6&quot;, &quot;score&quot; 70622257}
+;;     {&quot;player-id&quot; &quot;2e9da877-4911-4658-b964-b5684b858921&quot;, &quot;score&quot; 92581379}
+;;     {&quot;player-id&quot; &quot;2c044a04-772f-41cf-a4f5-19e8e8d76e8c&quot;, &quot;score&quot; 4338875}&#93;
+</code></pre><p>From the value returned you can see that this is a Clojure data structure.  It is a vector of 4 hash-maps.</p><p>This data is much nicer to work with.</p><h2 id="get&#95;requests&#95;with&#95;clj-http&#95;or&#95;httpkit&#95;client">GET requests with clj-http or httpkit client</h2><p><a href='https://github.com/dakrone/clj-http'>clj-http</a> and httpkit client are libraries that send a http request and return all the values of the http response.</p><p>httpkit client uses the same API at clj-http, so the following code should work with either library.</p><p>Both these libraries provide access to the full http response information using the ring approach of putting http data into a hash-map. So we can use more than just the body of the response give by slurp.</p><p>As we used httpkit library to build a simple API server, then we will use httpkit client namespace as its part of the httpkit library that was downloaded when we built the simple API server (if you didnt build the server, the library will download when you run the repl for this project).</p><p>Edit the <code>deps.edn</code> file and add the httpkit dependency</p><pre><code class="clojure">:deps
+ {org.clojure/clojure   {:mvn/version &quot;1.10.1&quot;}
+  org.clojure/data.json {:mvn/version &quot;0.2.7&quot;}
+  http-kit              {:mvn/version &quot;2.4.0-alpha4&quot;}}
+</code></pre><p>Edit <code>src/practicalli/simple-api-client.clj</code> and add the httpkit client namespace to the project</p><pre><code class="clojure">&#40;ns practicalli.simple-api-client
+  &#40;:gen-class&#41;
+  &#40;:require &#91;clojure.data.json :as json&#93;
+            &#91;org.httpkit.client :as client&#93;&#41;&#41;
+</code></pre><p>Lets start with using httpkit client to get a web page, in this case the front page of the Practicalli blog.</p><p>Write the following function call in <code>src/practicalli/simple-api-client.clj</code> or start a REPL using <code>clj</code> or <code>clojure -A:rebel</code> if rebel readline is installed.</p><pre><code class="clojure">&#40;client/get &quot;https://practicalli.github.io/blog/&quot;&#41;
+;; =&gt; #org.httpkit.client/deadlock-guard/reify--5883&#91;{:status :pending, :val nil} 0x55598167&#93;
+</code></pre><p>What has happened here?</p><p><code>client/get</code> returns a promise, so we have to dereference it to get the value. <code>deref</code> resolves the promise and we get a hash-map as the result</p><pre><code class="clojure">&#40;deref &#40;client/get &quot;https://practicalli.github.io/blog/&quot;&#41;&#41;
+</code></pre><p><code>@</code> is the short form syntax for <code>deref</code>, its commonly used for promises, atoms, refs, etc.</p><pre><code class="clojure">@&#40;client/get &quot;https://practicalli.github.io/blog/&quot;&#41;
+</code></pre><p>If you were scraping the web, the <code>:body</code> key would give you the html from the web page</p><pre><code class="clojure">&#40;get
+  @&#40;client/get &quot;https://practicalli.github.io/blog/&quot;&#41;
+  :body&#41;
+</code></pre><p>As we can use a keyword as a function we can simplify the code</p><pre><code class="clojure">&#40;:body
+ @&#40;client/get &quot;https://practicalli.github.io/blog/&quot;&#41;&#41;
+</code></pre><pre><code class="clojure">@&#40;client/get &quot;https://game-scoreboard-api.herokuapp.com/game/scoreboard&quot;&#41;
+;; =&gt; {:opts {:method :get, :url &quot;https://game-scoreboard-api.herokuapp.com/game/scoreboard&quot;}, :body &quot;&#91;{\&quot;player-id\&quot;:\&quot;e8603a88-379f-44a9-8e70-7c822228e8f4\&quot;,\&quot;score\&quot;:7044673}&#93;&quot;, :headers {:connection &quot;keep-alive&quot;, :content-length &quot;70&quot;, :content-type &quot;application/json; charset=utf-8&quot;, :date &quot;Fri, 29 Nov 2019 19:22:56 GMT&quot;, :server &quot;Jetty&#40;9.2.21.v20170120&#41;&quot;, :via &quot;1.1 vegur&quot;}, :status 200}
+</code></pre><p>This gives a lot of information about the response. If we just want the JSON packet, its in the <code>:body</code></p><pre><code class="clojure">&#40;:body
+ @&#40;client/get &quot;https://game-scoreboard-api.herokuapp.com/game/scoreboard&quot; {:accept :json}&#41;&#41;
+;; =&gt; &quot;&#91;{\&quot;player-id\&quot;:\&quot;e8603a88-379f-44a9-8e70-7c822228e8f4\&quot;,\&quot;score\&quot;:7044673}&#93;&quot;
+</code></pre><h2 id="creating&#95;a&#95;simple&#95;api&#95;status&#95;checker">Creating a simple API status checker</h2><p>With http client we retrieve all the data of the response. In that data is a <code>:status</code> key that is associated with the HTTP response code, eg. 200 for response OK.</p><p>The <code>keys</code> function in <code>clojure.core</code> shows all the top level keys of a hash-map.  So we can use this on the response to see the available keys.</p><pre><code class="clojure">&#40;keys
+  @&#40;client/get &quot;https://game-scoreboard-api.herokuapp.com/game/scoreboard&quot; {:accept :json}&#41;&#41;
+</code></pre><p><code>:status</code> is a top level key in the response hash-map, so we can use <code>:status</code> as a function call with the hash-map as an argument, returning just the value of <code>:status</code></p><pre><code class="clojure">&#40;:status
+ @&#40;client/get &quot;https://game-scoreboard-api.herokuapp.com/game/scoreboard&quot; {:accept :json}&#41;&#41;
+</code></pre><p>Now we have the HTTP code from the <code>:status</code> key, we can use it to check if the API is working correctly.</p><p>Create a <code>-main</code> function to check the status and return a message</p><pre><code class="clojure">&#40;defn -main &#91;&amp; args&#93;
+  &#40;println &quot;Checking Game Scoreboard API&quot;&#41;
+  &#40;let &#91;status &#40;:status @&#40;client/get
+                          &quot;https://game-scoreboard-api.herokuapp.com/game/scoreboard&quot;
+                          {:accept :json}&#41;&#41;&#93;
+    &#40;if &#40;= 200 status&#41;
+      &#40;println &quot;Game Scoreboard status is OK&quot;&#41;
+      &#40;println &quot;Warning: status: &quot; status&#41;&#41;&#41;&#41;
+</code></pre><p>The project can then be run by <code>clj -m practicalli/simple-api-client</code>.</p><p>To use the project as a simple API monitor, you can run this command as a cron job or other type of batch process that runs regularly.</p><h2 id="trying&#95;apis&#95;with&#95;postman">Trying APIs with Postman</h2><p>If you are working with an unfamiliar API or one that is not self-documented with the Swagger library.  Tools like <a href='https://www.getpostman.com/'>Postman</a> are a useful way to experiment with API's without having to set up any code.</p><p><img src="/blog/images/clojure-webapps-api-postman-scoreboard-random-score-results.png" alt="Clojure Webapps - API testing with Postman - random score results" /></p><h2 id="summary">Summary</h2><p>Using <code>slurp</code> is quite a blunt tool and only returns the body of the request.  <code>slurp</code> is useful for unstructured content or data you can easily work with as a string, such as the text of a website or book.</p><blockquote><p> The enlive library has many useful functions if you are <a href='http://masnun.com/2016/03/20/web-scraping-with-clojure.html'>scraping the web</a> for content.  <a href='https://github.com/davidsantiago/hickory'>hickory</a> is a library for parsing HTML into Clojure data structures, so is also useful for processing HTML content. </p><p> ClojureScript does not implement the <code>slurp</code> function. </p></blockquote><p>Using clj-http and httpkit client, we can work with the whole HTTP request and have access to the meta-data of the request as well as the body.</p><p>Using clojure.data is a simple way to transform JSON into Clojure (and Clojure into JSON).  Libraries such as Cheshire and Transit offer more transformation tools and may be more useful for highly nested data transformation.</p><p>Once the data is in Clojure we can use all the functions in Clojure core (and community libraries) to manipulate and transform that data and run our queries and logic over them, making it really easy to get the results we are looking for.</p><h2 id="references">References</h2><ul><li><a href='https://github.com/metosin/ring-swagger'>ring-swagger</a></li><li><a href='https://github.com/metosin/compojure-api'>compojure-api</a> - extending compojure to make schema based APIs</li><li><a href='https://github.com/metosin/spec-tools'>spec-tools</a> - Clojure/Script utilities on top of clojure.spec, including spec-swagger.</li><li><a href='https://gist.github.com/jr0cket/f68f6317e6ff7cd82a355fa0a02af0f3'>most common word from a novel</a> - code example of using slurp to access a Project Guttenberg book.</li><li><a href='https://www.http-kit.org/client.html'>httpkit client</a> - with example code</li><li><a href='https://github.com/dakrone/clj-http'>clj-http library</a> - an HTTP library wrapping Apache HttpComponents client.  Project page and documentation.</li></ul>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/clojure/">clojure</a>
+    
+    <a href="/blog/tags/httpkit/">httpkit</a>
+    
+    <a href="/blog/tags/clj-http/">clj-http</a>
+    
+    <a href="/blog/tags/apis/">apis</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/advent-of-parens-2019/">&laquo; Advent Of Parens 2019 - feast on Clojure this holiday season</a>
+        
+        
+        <a class="right" href="/blog/posts/webapp-routes-with-json/">Clojure Webapp routing and APIs with JSON &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/consuming-apis-with-clojure/";
+            this.page.identifier = "Consuming APIs from Clojure";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

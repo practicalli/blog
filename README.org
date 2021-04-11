@@ -1,0 +1,7 @@
+# Practicalli Blog Content
+
+A static website generated from a Clojure project using Cryogen.
+
+The [[https://practicalli.github.io/blog][Practicalli blog]] website is currently generated from markdown content (although will be trialling asciidoc soon).
+
+Please raise [[https://github.com/practicalli/blog-content/issues][issues]] or [[https://github.com/practicalli/blog-content/projects/1][Kanban card]] for feedback (article ideas, updates, etc) on the [[https://github.com/practicalli/blog-content/][practicalli/blog-content GitHub repository]].

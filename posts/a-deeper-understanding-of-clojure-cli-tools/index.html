@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: A deeper understanding of Clojure CLI tools</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/a-deeper-understanding-of-clojure-cli-tools/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">21 July 2019</div>
+        
+    </div>
+    <h2>A deeper understanding of Clojure CLI tools</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+    <img class="topic" src="/blog/images/clojure-cli-logo-name.png" alt="clojure-cli logo" />
+    
+</div>
+<div>
+    
+    <p>CLI tools make Clojure very accessible and simple to install as they are a essentially a wrapper for running Clojure code using the <code>java</code> command and use additional libraries to manage dependencies, class paths, create projects and build java archive (jar) files.</p><blockquote><p> Newer content can be found in <a href='http://practicalli.github.io/clojure/clojure-tools/using-clojure-tools.html'>Using Clojure tools section of Practicalli Clojure</a> </p></blockquote><p>Its quite common to use the <code>java</code> command to run your code in production, usually defined in a shell script.  Leiningen can be used to run your application in production too, however, because Leiningen creates 2 JVM instances (one for itself and one for the application), its more efficient to just use the <code>java</code> command.</p><p>Leiningen does provides a very rich set of templates that speed up development with Clojure and has a multitude of plugins. Plugins provide a rich source of features but they are not very composable, especially compared to the Clojure language itself.</p><p>Clojure CLI tools provide a minimal but elegant layer on top of the <code>java</code> command and enables libraries, configuration and code to compose together just like Clojure functions.  So we will continuing the exploration of Clojure CLI tools and dig a little deeper under the covers to understand how they work and how to configure projects to be very flexible, especially the different sources of code you can use .</p><blockquote><p> This article follows on from <a href='http://jr0cket.co.uk/2019/07/getting-started-with-Clojure-CLI-tools.html'>getting started with Clojure CLI tools</a> </p></blockquote><p><!&ndash; more &ndash;></p><h2 id="under&#95;the&#95;covers&#95;of&#95;clojure&#95;cli">Under the covers of CLojure CLI</h2><p>Using the command <code>lein new app classic</code> creates a simple project called <code>classic</code> containing some source code and test code.  We can use <code>lein repl</code> to give instant feedback on the evaluation of the code in our project.</p><p>This command also compiles our code to Java bytecode, so it can run on the JVM just like compiled Java or Scala code.</p><p><code>lein jar</code> and more commonly <code>lein uberjar</code> is used to package up our code into a single file.  These commands compile the Clojure code into classes when Ahead Of Time compilation is used.  Any namespaces with <code>&#40;:gen-class&#41;</code> directive included in compiled into a JVM bytecode class is <code>lein uberjar</code> creates a single file that contains our application and the Clojure library, so we can use with the java command line</p><p><code>java -cp target/myproject-standalone.jar</code></p><p>If I had created a library project, with <code>lein new classic</code>, then I would need to specify clojure.main and the main class for the <code>java</code> command to work correctly.</p><p><code>java -cp target/myproject-standalone.jar clojure.main -m classic.core</code></p><p>It is also possible to run the compiled source code, however, we will also need to add Clojure as a dependency.  There is a copy of the Clojure library in my maven cache from previous projects I have worked on.</p><p><code>java -cp target/uberjar/classes/:/home/jr0cket/.m2/repository/org/clojure/clojure/1.8.0/clojure-1.8.0.jar classic.core</code></p><p>If I just wanted to run a repl, I can call clojure.main as my namespace</p><p><code>java -cp /home/jr0cket/.m2/repository/org/clojure/clojure/1.8.0/clojure-1.8.0.jar clojure.main</code></p><p>Already there are a few things to remember. As your project gets bigger then the command you use will get bigger and harder to manage safely, its often put into scripts but then there is no real validation that you got the script right, without some manual testing</p><p><code>java $JVM&#95;OPTS -cp target/todo-list.jar clojure.main -m todo-list.core $PORT</code></p><h2 id="clojure&#95;cli&#95;tools">Clojure CLI tools</h2><p>It is very easy to create a project for CLI tools, using the <code>clojure</code> command or the <code>clj</code> wrapper for that command, which will use a readline to improve the command line experience.</p><p>CLI tools project only requires a <code>deps.edn</code> file, a default file comes with the CLI tools install.</p><p><code>&#126;/.clojure/deps.edn</code> is created the first time you run the <code>clojure</code> command.</p><p><code>/usr/local/lib/clojure/deps.edn</code> contains a few basic options that are applied to all projects.</p><p><code>src</code> is set as the relative path to the source code</p><p>The dependencies include <code>1.10.1</code> version of the Clojure library.</p><p>Aliases define additional libraries that will only be included during development, in this case <code>org.clojure/tools.deps.alpha</code> which is used to find and download project dependencies and build a classpath for the project.</p><p>Finally maven central and clojars are the repositories where dependencies are downloaded from.</p><pre><code class="clojure">{
+  :paths &#91;&quot;src&quot;&#93;
+
+  :deps {
+    org.clojure/clojure {:mvn/version &quot;1.10.1&quot;}
+  }
+
+  :aliases {
+    :deps {:extra-deps {org.clojure/tools.deps.alpha {:mvn/version &quot;0.6.496&quot;}}}
+    :test {:extra-paths &#91;&quot;test&quot;&#93;}
+  }
+
+  :mvn/repos {
+    &quot;central&quot; {:url &quot;https://repo1.maven.org/maven2/&quot;}
+    &quot;clojars&quot; {:url &quot;https://repo.clojars.org/&quot;}
+  }
+}
+</code></pre><h2 id="a&#95;simple&#95;project&#95;configuration">A simple project configuration</h2><p>nside.</p><p>There is some duplication of the configurations</p><pre><code class="clojure">{:paths &#91;&quot;src&quot;&#93;
+
+ :deps
+ {org.clojure/clojure {:mvn/version &quot;1.10.1&quot;}}
+
+ :aliases
+ {:test {:extra-paths &#91;&quot;test&quot;&#93;
+         :extra-deps {com.cognitect/test-runner
+                       {:git/url &quot;https://github.com/cognitect-labs/test-runner.git&quot;
+                        :sha &quot;cb96e80f6f3d3b307c59cbeb49bb0dcb3a2a780b&quot;}}
+         :main-opts &#91;&quot;-m&quot; &quot;cognitect.test-runner&quot;&#93;}}}
+</code></pre><p>The cognitect-labs/test-runner is a recent project so we are including this directly from its GitHub repository.  We use the latest commit https://github.com/cognitect-labs/test-runner/commit/cb96e80f6f3d3b307c59cbeb49bb0dcb3a2a780b</p><p>Using the Git commit removes the need to create a Jar file from the source code.</p><h2 id="time&#95;for&#95;some&#95;test&#95;driven&#95;development">Time for some Test Driven Development</h2><p>Create a new file in the <code>test</code> directory called <code>core&#95;test.clj</code> that contains a test with two assertions.</p><p>The <code>clojure.test</code> namespace is included in the <code>org.clojure/clojure</code> dependency, so we do not have to add anything to the <code>deps.edn</code> file</p><pre><code class="clojure">&#40;ns simple.core-test
+  &#40;:require &#91;simple.core :as sut&#93;
+            &#91;clojure.test :refer &#91;deftest testing is&#93;&#93;&#41;&#41;
+
+
+&#40;deftest core-tests
+  &#40;testing &quot;The correct welcome message is returned&quot;
+    &#40;is &#40;= &#40;sut/-main&#41;
+           &quot;Hello World!&quot;&#41;&#41;
+
+    &#40;is &#40;= &#40;sut/-main &quot;Welcome to the Clojure CLI&quot;&#41;
+           &quot;Hello World! Welcome to the Clojure CLI&quot;&#41;&#41;&#41;&#41;
+</code></pre><p>We run the failing tests with the following command</p><pre><code class="shell">clj -A:test
+
+Checking out: https://github.com/cognitect-labs/test-runner.git at cb96e80f6f3d3b307c59cbeb49bb0dcb3a2a780b
+
+Running tests in #{&quot;test&quot;}
+Syntax error compiling at &#40;simple/core&#95;test.clj:8:26&#41;.
+No such var: sut/-main
+
+Full report at:
+/tmp/clojure-3370388766424088668.edn
+</code></pre><p>You can see that the first time we are using the test-runner the CLI tools download the source code from the Git repository.</p><blockquote><p> NOTE: Using a Git commit provides just a stable dependency as Maven or other tool.  The only risk is if you are using a shared repository and a force commit is made that replaces the commit you have as dependency, but that will have a different hash value, so you will notice that kind of change when running your code. </p></blockquote><h2 id="and&#95;now&#95;some&#95;code">And now some code</h2><p>Everything is working correctly and the tests are failing because we have not written the code that the test is using.  So write the application code and make the test pass and execute the test runner again.</p><pre><code class="clojure">&#40;ns hello.core&#41;
+
+&#40;defn -main &#91;&#93;
+  &#40;println &quot;Hello world!&quot;&#41;&#41;
+</code></pre><h2 id="extra&#95;dependencies">Extra dependencies</h2><h2 id="over-ride">Over-ride</h2><p>Use different versions of dependencies in your project that is set globally.  One example is if you are activly building a project, you may want to include the latest commit on a feature branch.  Or you may be using a third party library and want to test out a new beta version.  Or perhaps you are releasing a library and want to test it with earlier versions of Clojure, for example.</p><h3 id="example">Example</h3><p>0383381021e03691dff101a9b12accb79e9a4e10</p><h2 id="jvm&#95;options">JVM options</h2><p>Passing options to the Java Virtual Machine can be very important to shape the performance dynamics of your Clojure application.  For example, not enough memory allocation can really grind your application to a halt.  I experienced this with a third party Java project, they only had 512Mb as the memory allocation size and after a number of uses we working with it then it would steadily grind to a halt.  Doubling the JVM memory allocation made the application fly for hundreds of concurrent users.</p><h2 id="configuration&#95;options&#95;useful&#95;for&#95;cljs">Configuration options useful for CLJS</h2><p>:output-dir to define where the resulting JavaScript file is written too when compiling ClojureScript.  This is used for a different build, e.g. <code>deploy</code> to</p><h2 id="deployment">Deployment</h2><p>We saw that Leiningen created a single file that we can use to deploy our application and call from the <code>java</code> command line.</p><p><a href='https://github.com/seancorfield/depstar'>depstar</a> is a CLJ tools based uberjar tool</p><pre><code class="clojure">{
+  :aliases {:depstar
+              {:extra-deps
+                 {seancorfield/depstar {:mvn/version &quot;0.2.4&quot;}}}}
+}
+</code></pre><p>Create an uberjar file using</p><pre><code class="clojure">clojure -A:depstar -m hf.depstar.uberjar simple.jar
+</code></pre><p>To run the generated jar file</p><p>java -cp simple.jar clojure.main -m simple.core</p><blockquote><p> depstar does not do any ahead of time compilation (AOT) so your application may start up more slowly as the code first needs to be compiled into Java byte code. </p></blockquote><p>https://github.com/clojure/clojure/commit/653b8465845a78ef7543e0a250078eea2d56b659</p><p>Thank you. <a href='https://twitter.com/jr0cket'>@jr0cket</a></p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/clojure-cli/">clojure-cli</a>
+    
+    <a href="/blog/tags/tools-deps/">tools-deps</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/gaining-confidence-with-Clojure-CLI-tools/">&laquo; Gaining confidence with Clojure CLI tools</a>
+        
+        
+        <a class="right" href="/blog/posts/cider-jack-in-to-clojure-cli-projects-from-spacemacs/">CIDER jack-in to Clojure CLI projects from Spacemacs &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/a-deeper-understanding-of-clojure-cli-tools/";
+            this.page.identifier = "A deeper understanding of Clojure CLI tools";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

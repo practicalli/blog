@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: Visualising UK Covid19 data with Clojure and Oz</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/visualising-uk-covid19-data-with-oz/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">13 March 2020</div>
+        
+    </div>
+    <h2>Visualising UK Covid19 data with Clojure and Oz</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+    <img class="topic" src="/blog/images/data-science-logo-name.png" alt="data-science logo" />
+    
+</div>
+<div>
+    
+    <p>Discover how to use Oz, a Clojure library for visualising data, to build a dashboard of information about the Covid19 virus from <a href='https://www.gov.uk/government/publications/covid-19-track-coronavirus-cases'>available UK data</a>.</p><p><a href='https://github.com/practicalli/covid19-dashboard'>practicalli/covid19-dashboard</a> contains the code from this article.</p><p>Data science is about gathering meaningful data and presenting that data in meaningful ways, enabling business or communities to have tools to better understand a stituation.  Data sets are often flawed and visualisation open to interpretation, so no clear picture is offered about the current Covid19 pandemic.</p><p>Covid19 virus is a very serious pandemic affecting the world at present, please stay safe and where possible at home and away from others to help stop the spread of this highly infectious virus.</p><p><!&ndash; more &ndash;></p><h2 id="examples&#95;of&#95;visualisations">Examples of visualisations</h2><p>The UK government provides a <a href='https://www.gov.uk/government/publications/covid-19-track-coronavirus-cases'>Covid-19 tracker</a> of reported cases and is a useful example of a data science dashboard.</p><p><img src="/blog/images/data-science-covid19-public-health-england-dashboard.png" alt="GOV.UK COVID-19 tracker dashboard" /></p><p>Other excellent dashboard examples include:</p><ul><li><a href='https://www.againstcovid19.com/singapore/'>againstcovid19: Singapore</a></li><li><a href='https://www.againstcovid19.com/indonesia/dashboard'>againstcovid19: Indonesia</a></li><li><a href='https://www.againstcovid19.com/taiwanin/dashboard'>againstcovid19: Taiwan</a></li><li><a href='https://www.againstcovid19.com/philippines/dashboard'>againstcovid19: Philippines</a></li></ul><h2 id="mining&#95;for&#95;data">Mining for data</h2><p>Good data can be hard to find and often needs cleaning.  Luckily the UK Government has <a href='https://www.gov.uk/government/publications/covid-19-track-coronavirus-cases'>shared the data</a> used for the Covid-19 tracker.</p><p>There are several Excel spreadsheets containing different views of the data</p><ul><li>Daily indicators - used for the headline figures each day</li><li>Daily confirmed cases - data from 29th February to previous day (count each day, cumulative cases, daily deaths, cumulative deaths).</li></ul><h2 id="creating&#95;a&#95;clojure&#95;project">Creating a Clojure project</h2><p>Dave L created a very useful sample application you could extend (required Leiningen build tool), or create a new Clojure project</p><p>clojure -A:new app practicalli/covid19-dashboard</p><blockquote><p> <a href='http://practicalli.github.io/clojure/getting-started/install-clojure.html'>Install Clojure CLI tools and clj-new</a> </p></blockquote><p>Add Oz as a dependency in <code>deps.edn</code></p><pre><code class="clojure"> :deps
+ {org.clojure/clojure {:mvn/version &quot;1.10.1&quot;}
+
+  metasoarous/oz {:mvn/version &quot;1.6.0-alpha6&quot;}}
+</code></pre><p>Require Oz in the practicalli.covid19-dashboard namespace</p><pre><code class="clojure">&#40;ns practicalli.covid19-dashboard
+  &#40;:gen-class&#41;
+  &#40;:require &#91;oz.core :as oz&#93;&#41;&#41;
+</code></pre><p>Finally add an explicitly call to the Oz server.  This will listen via websockets for views to display.</p><pre><code class="clojure">&#40;oz/start-server!&#41;
+</code></pre><p><img src="/blog/images/clojure-oz-start-server-website-placeholder.png" alt="Clojure - Oz visualization - waiting for first spec to load" /></p><p>The message suggests that a plot function (e.g. <code>oz/view!</code>) will start the server if not explicitly called.</p><h2 id="create&#95;a&#95;view&#95;with&#95;mock&#95;data">Create a view with Mock data</h2><pre><code class="clojure">&#40;defn play-data &#91;&amp; names&#93;
+  &#40;for &#91;n names
+        i &#40;range 20&#41;&#93;
+    {:time i :item n :quantity &#40;+ &#40;Math/pow &#40;&#42; i &#40;count n&#41;&#41; 0.8&#41; &#40;rand-int &#40;count n&#41;&#41;&#41;}&#41;&#41;
+</code></pre><h2 id="extracting&#95;the&#95;data">Extracting the data</h2><p>The data is in Microsoft Excel files, even though its just simple table data.  I opened the files in LibreOffice and saved them as plain text csv files.</p><h2 id="transforming&#95;the&#95;data&#95;for&#95;visualisation">Transforming the data for visualisation</h2><p>The data needs to be transformed into a structure that can be used to visualise the data.</p><p>This adds</p><p><code>:data</code> wraps the original sequence of data in a hash-map with a key named <code>:values</code>.</p><p><code>:mark</code> is the type of visualisation to use, e.g. bar chart, line graph, etc.</p><p><code>:encoding</code> defines how the data will be presented, matching the <code>:field</code> with the data keyword and the</p><h2 id="creating&#95;oz&#95;views">Creating Oz views</h2><p>Oz is based on the grammar of interactive graphics as defined for <a href='https://vega.github.io/vega-lite/docs/'>Vega-lite specifications</a>.</p><p><img src="/blog/images/oz-grammar-of-graphics-data-types.png" alt="Oz - Grammar of interactive graphics" /></p><p>Which can generate a range of graphs and plots</p><p><img src="/blog/images/oz-grammar-of-graphics-graph-types.png" alt="Oz - Grammar of interactive graphics" /></p><p>Watch <a href='https://www.youtube.com/watch?v=9uaHRWj04D4'>Vega Lite: A Grammar of Interactive Graphics</a> for more examples (more examples will be covered in later articles here).</p><h3 id="line&#95;graph">Line graph</h3><p>Show the cumulative cases for each location as a separate line on the graph</p><pre><code class="clojure">&#40;def line-plot
+  &quot;Transform data for visualization&quot;
+  {:mark     &quot;line&quot;
+   :data     {:values &#40;mock-data-set &quot;England&quot; &quot;Scotland&quot; &quot;Wales&quot; &quot;Northern Ireland&quot;&#41;}
+   :encoding {:x     {:field &quot;day&quot; :type &quot;quantitative&quot;}
+              :y     {:field &quot;cases&quot; :type &quot;quantitative&quot;}
+              :color {:field &quot;location&quot; :type &quot;nominal&quot;}}}&#41;
+
+&#40;oz/view! line-plot&#41;
+</code></pre><p>The encoding field names match the keywords in the data values</p><h3 id="histogram&#95;-&#95;bar&#95;chart">Histogram - bar chart</h3><p>A bar chart showing a cases comparison between locations on the same day.</p><pre><code class="clojure">&#40;def stacked-bar
+  {:mark     &quot;bar&quot;
+   :data     {:values &#40;mock-data-set &quot;England&quot; &quot;Scotland&quot; &quot;Wales&quot; &quot;Norther Ireland&quot;&#41;}
+   :encoding {:x     {:field &quot;day&quot;
+                      :type  &quot;ordinal&quot;}
+              :y     {:aggregate &quot;location&quot;
+                      :field     &quot;cases&quot;
+                      :type      &quot;quantitative&quot;}
+              :color {:field &quot;location&quot;
+                      :type  &quot;nominal&quot;}}}&#41;
+
+&#40;oz/view! stacked-bar&#41;
+</code></pre><h2 id="creating&#95;a&#95;dashboard">Creating a dashboard</h2><p>Once all the views are created and recieving the relevant data, its a simple matter to create a dashboard using the hiccup style syntax that is common in Clojure.</p><p>Hiccup syntax is the clojure approach to representing HTML content and structure,  along with CSS styles.  Instead of open and closing tags, a Clojure vector respresents the scope of a tag and a keyword represents the type of tag.<pre><code class="clojure">&#91;:div
+  &#91;:h1 &quot;Title of the Dashboard&quot;&#93;&#93;
+</code></pre></p><p>Lets add the views we created already created.</p><pre><code class="clojure">&#40;def dashboard
+  &#91;:div
+   &#91;:h1 &quot;COVID19 Tracker - Mock data&quot;&#93;
+   &#91;:p &quot;Mock data to experiment with types of views&quot;&#93;
+   &#91;:div {:style {:display &quot;flex&quot; :flex-direction &quot;row&quot;}}
+    &#91;:vega-lite line-plot&#93;
+    &#91;:vega-lite stacked-bar&#93;&#93;&#93;&#41;
+
+&#40;oz/view! dashboard&#41;
+</code></pre><h2 id="resources">Resources</h2><ul><li><a href='https://vega.github.io/editor/#/custom/vega-lite'>Vega-Lite online editor with examples</a> - a quick way to try out visualisations and see example code</li><li><a href='https://vega.github.io/vega-lite/docs/'>Vega-Lite documenttion</a></li><li><a href='https://communityinviter.com/apps/vega-js/join'>Vega slack community self-signup</a></li></ul>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/clojure/">clojure</a>
+    
+    <a href="/blog/tags/data-science/">data-science</a>
+    
+    <a href="/blog/tags/oz/">oz</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">&laquo; A deeper understanding of data visualization Clojure and Oz</a>
+        
+        
+        <a class="right" href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/visualising-uk-covid19-data-with-oz/";
+            this.page.identifier = "Visualising UK Covid19 data with Clojure and Oz";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

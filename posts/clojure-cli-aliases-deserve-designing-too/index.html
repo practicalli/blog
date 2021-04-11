@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: Clojure CLI tools aliases deserve good design too</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/clojure-cli-aliases-deserve-designing-too/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">11 December 2020</div>
+        
+    </div>
+    <h2>Clojure CLI tools aliases deserve good design too</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+    <img class="topic" src="/blog/images/clojure-cli-logo-name.png" alt="clojure-cli logo" />
+    
+</div>
+<div>
+    
+    <p>Aliases in <a href='https://practicalli.github.io/clojure/clojure-tools/using-clojure-tools.html'>Clojure CLI tools</a> are an important way to configure how to work with a Clojure project effectively, so they deserve the same attention and clean design applied to source code, test code and other configuration.</p><p><a href='https://github.com/practicalli/clojure-deps-edn'><code>practicalli/clojure-deps-edn</code></a> provides examples of over 50 aliases crafted to use over multiple projects and providing access to a wide range of Clojure CLI community tools.</p><p>One way to kill the excellent experience that Clojure CLI tools bring is to write aliases that conflate concepts and are just a catch all for loosely related configuration.  Without applying a little thought and design to aliases it just makes more work later on.</p><p>The <code>clojure</code> command line provided by Clojure CLI tools allows the chaining of aliases together, providing a very flexible way to use and re-use aliases across all your projects.</p><p>Crafting the design of your aliases with some design thinking reduces conflict between loosely related tools and libraries, minimizes duplication and simplifies the <code>deps.edn</code> configuration for all your projects.</p><p><!&ndash; more  &ndash;></p><h2 id="conflated&#95;design&#95;of&#95;aliases">Conflated design of aliases</h2><p>Aliases are not buckets to throw random configuration together, they should have a very clear and specific purpose.</p><p>Aliases that are used for different purposes just add to complexity.</p><p>In this example, a very generic name is used for an alias that servers at least two different purposes.</p><pre><code>  :test {:extra-paths &#91;&quot;test&quot;&#93;
+         :extra-deps {lambdaisland/kaocha           {:mvn/version &quot;1.0.690&quot;}
+                      lambdaisland/kaocha-cloverage {:mvn/version &quot;1.0.63&quot;}
+                      lambdaisland/kaocha-junit-xml {:mvn/version &quot;0.0.76&quot;}
+                      ring/ring-mock                {:mvn/version &quot;0.3.2&quot;}
+                      mockery                       {:mvn/version &quot;0.1.4&quot;}
+                      http-kit.fake/http-kit.fake   {:mvn/version &quot;0.2.1&quot;}}
+         :main-opts  &#91;&quot;-m&quot; &quot;kaocha.runner&quot;&#93;}
+</code></pre><p>In one scenario, the alias is used with the Kaocha test runner on the command line to run all tests defined on the class path, to which the <code>test</code> directory is added.  The alias loads all the libraries and runs the <code>-main</code> function in the <code>kaocha.runner</code>.  Although the alias name is vauge as to the purpose of the alias, it does successfully run the kaocha test runner.</p><p>Using the same alias to run a REPL to include the "test" directory and dependencies is a source of several issues.  As kaocha is an external process to the REPL, the kaocha dependencies are simply not used and consume more resources and slows down startup time.  As the <code>:test</code> alias has a <code>:main-opts</code> that will run the <code>-main</code> function from <code>kaocha.runner</code>, it adds complexity as the REPL process also has a <code>-main</code> function to run.  Clojure main can only run one <code>-main</code> function, so which one wins.</p><blockquote><p> There is discussion on the Cider GitHub repository to <a href='https://github.com/clojure-emacs/cider/issues/2941'>force the Cider jack-in process to win</a> regardless of aliases provided.  However, designing good aliases would remove this issue. </p></blockquote><p>What if another test runner is going to be used on the command line?  Using this <code>:test</code> alias again causes issues as to which <code>-main</code> function will run, the <code>:main-opts</code> in the alias or <code>-main</code> function from the other test runner.  It would also load in dependencies that are not required which is very inefficient.</p><h2 id="designed&#95;aliases">Designed aliases</h2><p>Aliases are just like code and other configuration, they should be designed well for the purpose the serve.</p><p>The <code>:env/test</code> alias adds the <code>test</code> directory to the class path so tests can be found.  It includes specific libraries that the unit tests require to run.</p><pre><code>  :env/test
+  {:extra-paths &#91;&quot;test&quot;&#93;
+   :extra-deps {ring/ring-mock                {:mvn/version &quot;0.3.2&quot;}
+                mockery                       {:mvn/version &quot;0.1.4&quot;}
+                http-kit.fake/http-kit.fake   {:mvn/version &quot;0.2.1&quot;}}}
+</code></pre><p>The <code>:env/test</code> provides a clear description to it purpose, to provide the environment configuration for testing.  The alias is usable with a range of test runners, both in process (cider-test) and external (kaocha, cognitect labs, eftest, etc.).  The <code>:env/test</code> alias can also be used with continuous integration services.</p><p>Specific aliases can be defined for a test runner, for example kaocha with cloverage and junit xml reporting.</p><pre><code>  :test-runner/kaocha
+  {:extra-paths &#91;&quot;test&quot;&#93;
+   :extra-deps {lambdaisland/kaocha           {:mvn/version &quot;1.0.690&quot;}
+                lambdaisland/kaocha-cloverage {:mvn/version &quot;1.0.63&quot;}
+                lambdaisland/kaocha-junit-xml {:mvn/version &quot;0.0.76&quot;}}
+   :main-opts  &#91;&quot;-m&quot; &quot;kaocha.runner&quot;&#93;}
+</code></pre><p>A specific alias for the Cognitect labs runner</p><pre><code>  :test-runner/cognitect
+  {:extra-paths &#91;&quot;test&quot;&#93;
+   :extra-deps  {com.cognitect/test-runner
+                 {:git/url &quot;https://github.com/cognitect-labs/test-runner.git&quot;
+                  :sha     &quot;b6b3193fcc42659d7e46ecd1884a228993441182&quot;}}
+   :main-opts   &#91;&quot;-m&quot; &quot;cognitect.test-runner&quot;&#93;}
+</code></pre><p>Both test runner aliases can be added to the user level configuration (~/.clojure/deps.edn) and used with any Clojure project</p><p>The <code>:env/test</code> alias can be used with either these aliases to run the tests within the specific environment required for the project.</p><pre><code class="shell">clojure -M:env/test:test-runner/kaocha
+</code></pre><h2 id="summary">Summary</h2><p>A little design thinking about the aliases and borrowing from community examples (practicalli & seancorfield) can make your projects more consistent to work with, easier to maintain and onboard new developers and far simpler overall.</p><h2 id="looking&#95;to&#95;the&#95;future&#95;-&#95;clojure&#95;exec">Looking to the future - Clojure exec</h2><p>Clojure exec was introduced in September 2020 (Clojure ClI tools version 1.10.1.697) and brings the capacity to run any fully qualified function, rather than just Clojure main.</p><p>Rather than using string based adhoc arguments, Clojure exec takes a hash-map of key / value pairs, making the arguments self describing values and providing scope to do far more with functions.</p><p>Clojure exec has already been adopted by several community projects, e.g. clj-new, depstar, and others, like vlaaad/reveal, are following on with that approach too.</p><p>It is likely that most tools for Clojure CLI will evolve into using Clojure exec and embrace this more flexible and structured approach to running Clojure.</p><ul><li><a href='https://insideclojure.org/2020/07/28/clj-exec/'>clj exec - Inside Clojure</a></li><li><a href='https://insideclojure.org/2020/09/04/clj-exec/'>clj exec update - Inside Clojure</a></li></ul><p>Thank you. <a href='https://twitter.com/practical_li'>@practical_li</a></p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/aliases/">aliases</a>
+    
+    <a href="/blog/tags/clojure-cli/">clojure-cli</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/clojure-repl-jack-in-or-connect/">&laquo; Clojure CLI tools - To jack-in or connect, that is the question</a>
+        
+        
+        <a class="right" href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/clojure-cli-aliases-deserve-designing-too/";
+            this.page.identifier = "Clojure CLI tools aliases deserve good design too";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

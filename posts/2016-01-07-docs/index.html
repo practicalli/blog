@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: Quick Start Guide</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/2016-01-07-docs/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">7 January 2016</div>
+        
+    </div>
+    <h2>Quick Start Guide</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+</div>
+<div>
+    <ol class="content"><li><a href="#features">Features</a></li><li><a href="#prerequisites">Prerequisites</a></li><li><a href="#usage">Usage</a></li><ol><li><a href="#creating_a_new_site">Creating a New Site</a></li><li><a href="#running_the_server">Running the Server</a></li><li><a href="#site_configuration">Site Configuration</a></li><li><a href="#switching_between_markdown_and_asciidoc">Switching between Markdown and AsciiDoc</a></li><li><a href="#selecting_a_theme">Selecting a Theme</a></li><li><a href="#customizing_layouts">Customizing Layouts</a></li><li><a href="#code_syntax_highlighting">Code Syntax Highlighting</a></li></ol><li><a href="#deploying_your_site">Deploying Your Site</a></li><li><a href="#third_party_libraries">Third Party Libraries</a></li><ol><li><a href="#https://github.com/greywolve/cryogen-markdown-external">https://github.com/greywolve/cryogen-markdown-external</a></li></ol><li><a href="#some_sites_made_with_cryogen">Some Sites Made With Cryogen</a></li></ol>
+    <p>This intro only documents a subset of Cryogen's features. For additional documentation please see the <a href='http://cryogenweb.org'>cryogen site</a>.</p><h2 id="features">Features</h2><ul><li>Blog posts and pages with Markdown (default) or AsciiDoc</li><li>Tags</li><li>Table of contents generation</li><li>Plain HTML page templates</li><li>Code syntax highlighting</li><li>Disqus support</li><li>Sitemap generation</li><li>RSS feed generation</li><li>Sass/SCSS compilation</li><li>Klipse Integration</li></ul><h2 id="prerequisites">Prerequisites</h2><p>You will need <a href='https://github.com/technomancy/leiningen'>Leiningen</a> 2.5.0 or above installed.</p><h2 id="usage">Usage</h2><h3 id="creating&#95;a&#95;new&#95;site">Creating a New Site</h3><p>A new site can be created using the Cryogen template as follows:</p><pre><code>lein new cryogen my-blog
+</code></pre><h3 id="running&#95;the&#95;server">Running the Server</h3><p>The web server can be started from the <code>my-blog</code> directory using the <code>lein-ring</code> plugin:</p><pre><code>lein ring server
+</code></pre><p>The server will watch for changes in the <code>content</code> and <code>themes</code> folders and recompile the content automatically.</p><p>You can also generate the content without bringing up a server via:</p><pre><code>lein run
+</code></pre><h3 id="site&#95;configuration">Site Configuration</h3><p>The site configuration file is found at <code>content/config.edn</code>, this file looks as follows:</p><pre><code class="clojure">{:site-title           &quot;My Awesome Blog&quot;
+ :author               &quot;Bob Bobbert&quot;
+ :description          &quot;This blog is awesome&quot;
+ :site-url             &quot;http://blogawesome.com/&quot;
+ :post-root            &quot;posts&quot;
+ :page-root            &quot;pages&quot;
+ :post-root-uri        &quot;posts-output&quot;
+ :page-root-uri        &quot;pages-output&quot;
+ :tag-root-uri         &quot;tags-output&quot;
+ :author-root-uri      &quot;authors-output&quot;
+ :public-dest          &quot;public&quot;
+ :blog-prefix          &quot;/blog&quot;
+ :rss-name             &quot;feed.xml&quot;
+ :rss-filters          &#91;&quot;cryogen&quot;&#93;
+ :recent-posts         3
+ :post-date-format     &quot;yyyy-MM-dd&quot;
+ :archive-group-format &quot;yyyy MMMM&quot;
+ :sass-src             &#91;&#93;
+ :sass-path            &quot;sass&quot;
+ :compass-path         &quot;compass&quot;
+ :theme                &quot;blue&quot;
+ :resources            &#91;&quot;img&quot;&#93;
+ :keep-files           &#91;&quot;.git&quot;&#93;
+ :disqus?              false
+ :disqus-shortname     &quot;&quot;
+ :ignored-files        &#91;#&quot;\.#.&#42;&quot; #&quot;.&#42;\.swp$&quot;&#93;
+ :previews?            false
+ :posts-per-page       5
+ :blocks-per-preview   2
+ :clean-urls           :trailing-slash
+ :collapse-subdirs?    false
+ :hide-future-posts?   true
+ :klipse               {}
+ :debug?               false}
+</code></pre><p>For information about each key please see the <a href='http://cryogenweb.org/docs/configuration.html'>"Configuration"</a> portion of the Cryogen documentation site.</p><h3 id="switching&#95;between&#95;markdown&#95;and&#95;asciidoc">Switching between Markdown and AsciiDoc</h3><p>Cryogen comes with Markdown support as default. If you want to use AsciiDoc instead, open the <code>project.clj</code> in your created blog (e.g. <code>my-blog</code>), and change the line in <code>:dependencies</code> that says <code>cryogen-markdown</code> to <code>cryogen-asciidoc</code>. Instead of looking for files ending in <code>.md</code> in the <code>content/md</code> directory, the compiler will now look for files ending in <code>.asc</code> in the <code>content/asc</code> directory.</p><h3 id="selecting&#95;a&#95;theme">Selecting a Theme</h3><p>The Cryogen template comes with three themes in the <code>themes</code> folder. To change your blog's theme, change the value of the <code>:theme</code> key in <code>config.edn</code>. Note that the Nucleus theme is obtained from <a href='http://www.downloadwebsitetemplates.co.uk/template/nucleus/'>downloadwebsitetemplates.co.uk</a> that requires you to keep the footer, unless you make a donation on their website.</p><h3 id="customizing&#95;layouts">Customizing Layouts</h3><p>Cryogen uses <a href='https://github.com/yogthos/Selmer'>Selmer</a> templating engine for layouts. Please refer to its documentation to see the supported tags and filters for the layouts.</p><p>The layouts are contained in the <code>themes/{theme}/html</code> folder of the project. By default, the <code>base.html</code> layout is used to provide the general layout for the site. This is where you would add static resources such as CSS and JavaScript assets as well as define headers and footers for your site.</p><p>Each page layout should have a name that matches the <code>:layout</code> key in the page metadata and end with <code>.html</code>. Page layouts extend the base layout and should only contain the content relaveant to the page inside the <code>content</code> block. For example, the <code>tag</code> layout is located in <code>tag.html</code> and looks as follows:</p><pre><code class="xml">{% extends &quot;/html/base.html&quot; %}
+{% block content %}
+&lt;div id=&quot;posts-by-tag&quot;&gt;
+    &lt;h2&gt;Posts tagged {{name}}&lt;/h2&gt;
+    &lt;ul&gt;
+    {% for post in posts %}
+        &lt;li&gt;
+            &lt;a href=&quot;{{post.uri}}&quot;&gt;{{post.title}}&lt;/a&gt;
+        &lt;/li&gt;
+    {% endfor %}
+    &lt;/ul&gt;
+&lt;/div&gt;
+{% endblock %}
+</code></pre><h3 id="code&#95;syntax&#95;highlighting">Code Syntax Highlighting</h3><p>Cryogen uses <a href='https://highlightjs.org/'>Highlight.js</a> for code syntax highlighting. You can add more languages by replacing <code>themes/{theme}/js/highlight.pack.js</code> with a customized package from <a href='https://highlightjs.org/download/'>here</a>.</p><p>The <code> initHighlightingOnLoad</code> function is called in <code>themes/{theme}/html/base.html</code>.</p><pre><code class="xml">&lt;script&gt;hljs.initHighlightingOnLoad&#40;&#41;;&lt;/script&gt;
+</code></pre><h2 id="deploying&#95;your&#95;site">Deploying Your Site</h2><p>The generated static content will be found under the <code>public</code> folder. Simply copy the content to a static folder for a server such as Nginx or Apache and your site is now ready for service.</p><p>A sample Nginx configuration that's placed in <code>/etc/nginx/sites-available/default</code> can be seen below:</p><pre><code class="javascript">server {
+  listen 80 default&#95;server;
+  listen &#91;::&#93;:80 default&#95;server ipv6only=on;
+  server&#95;name localhost &lt;yoursite.com&gt; &lt;www.yoursite.com&gt;;
+
+  access&#95;log  /var/log/blog&#95;access.log;
+  error&#95;log   /var/log/blog&#95;error.log;
+
+  location / {
+    alias       /var/blog/;
+    error&#95;page  404 = /404.html;
+  }
+}
+</code></pre><p>Simply set <code>yoursite.com</code> to the domain of your site in the above configuration and ensure the static content is available at <code>/var/blog/</code>. Finally, place your custom error page in the <code>/var/blog/404.html</code> file.</p><p>More information on deployment can be found <a href='http://cryogenweb.org/docs/deploying-to-github-pages.html'>here</a>.</p><h2 id="third&#95;party&#95;libraries">Third Party Libraries</h2><h4 id="https://github.com/greywolve/cryogen-markdown-external">https://github.com/greywolve/cryogen-markdown-external</h4><p>A Clojure library to provide Markdown rendering to the cryogen-core compiler by using an external command/program, such as pandoc.</p><h2 id="some&#95;sites&#95;made&#95;with&#95;cryogen">Some Sites Made With Cryogen</h2><ul><li><a href='http://carmen.la/blog/archives'>My personal blog</a></li><li><a href='http://cryogenweb.org'>Cryogen Documentation Site</a></li><li><a href='http://yogthos.net/'>Yogthos' blog</a></li><li><a href='http://www.chadstovern.com'>Chad Stovern's blog</a></li><li><a href='http://www.szcz.org/'>szcz</a></li><li><a href='https://blog.isvit.info'>ISvit blog</a></li><li><a href='http://lambdafunk.com'>Lambda Funk</a></li><li><a href='https://ddft.wiki'>DDFT.wiki</a></li></ul>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/cryogen/">cryogen</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/testing-live-coding/">&laquo; Testing Klipse Integration</a>
+        
+        
+        <a class="right" href="/blog/posts/2014-11-04-second-post/">Yet Another Post &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/2016-01-07-docs/";
+            this.page.identifier = "Quick Start Guide";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

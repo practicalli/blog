@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: Clojure Webapp routing and APIs with JSON</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/webapp-routes-with-json/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">23 November 2019</div>
+        
+    </div>
+    <h2>Clojure Webapp routing and APIs with JSON</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+    <img class="topic" src="/blog/images/clojure-cli-logo-name.png" alt="clojure-cli logo" />
+    
+</div>
+<div>
+    
+    <p>Defining routes for a Clojure webapps is easy with the Compojure library and we can also serve JSON to create a simple API.  All this is built on the <a href='clojure-web-server-cli-tools-deps-edn.html'>Clojure webserver we built in the previous article</a>.</p><p>Compojure has a <code>defroutes</code> macro that provides a simple way to define routes and there are other convienience functions that make routing very straight forward.</p><p>We can also add transit and other libraries to help manage JSON.</p><blockquote><p> All the code for this project is at <a href='https://github.com/practicalli/simple-api'>practicalli/simple-api repository</a> on GitHub. </p></blockquote><p><!&ndash; more &ndash;></p><h2 id="understanding&#95;compojure">Understanding compojure</h2><p>Compojure is a library to define a collection of routes and associate each route with a handler.</p><ul><li>A route is made from an http method and a specific web address or resource address, such as <code>hello.html</code> or <code>results.json</code></li><li>http method switching - running different code based on the HTTP method (<code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code>)</li><li>A handler is simply a function that takes a request map as an argument by default.</li></ul><p>Compojure also has convienience functions that make ring responses easier to generate, eg. <code>response</code>, <code>not-found</code>.</p><p><img src="/blog/images/clojure-ring-adaptor-middleware-route-handler-overview.png" alt="Routing with Ring and Compojure" /></p><p><a href='https://practicalli.github.io/clojure-webapps/compojure/'>Practicalli Clojure Webapps</a> contains more exmples of compojure.</p><h2 id="adding&#95;compojure&#95;to&#95;deps.edn">Adding compojure to deps.edn</h2><p>Take the simple-api-server project from last time</p><p>To find latest version we can look up <a href='https://clojars.org/compojure'>compojure on clojars.org</a>.</p><pre><code class="clojure">{:paths &#91;&quot;resources&quot; &quot;src&quot;&#93;
+
+ :deps
+ {org.clojure/clojure {:mvn/version &quot;1.10.1&quot;}
+  http-kit            {:mvn/version &quot;2.4.0-alpha4&quot;}
+  compojure           {:mvn/version &quot;1.6.1&quot;}}
+
+ :aliases
+ {,,,}}
+</code></pre><h2 id="namespace&#95;require">Namespace require</h2><p>To use functions from the Compojure library we include them in the namespace declaration.</p><p>The <code>:require</code> directive allows us to specify namespaces who's functions are then available.</p><ul><li><code>compojure.core</code> provides the defroutes macro, so we can define routes easily.  It also provides the GET and POST macros to match the different types of requests.</li><li><code>compojure.route</code> provides the <code>not-found</code> function that returns a standard 404 error.  This function would be replaced by a website template with hiccup or selma before going live with the webapp.</li></ul><p>Edit <code>src/practicalli.simple-api-server.clj</code> and add the two namespaces.</p><pre><code class="clojure">&#40;ns practicalli.simple-api-server
+  &#40;:gen-class&#41;
+  &#40;:require &#91;org.httpkit.server :as server&#93;
+            &#91;compojure.core :refer &#91;defroutes GET POST&#93;&#93;
+            &#91;compojure.route :refer &#91;not-found&#93;&#93;&#41;&#41;
+</code></pre><h2 id="tweaking&#95;the&#95;-main&#95;function">Tweaking the -main function</h2><p>Update the <code>run-server</code> function call to use the <code>webapp</code> created with <code>defroutes</code></p><pre><code class="clojure">
+&#40;defn -main
+  &quot;Start a httpkit server with a specific port
+  #' enables hot-reload of the handler function and anything that code calls&quot;
+  &#91;&amp; {:keys &#91;ip port&#93;
+      :or   {ip   &quot;0.0.0.0&quot;
+             port 8000}}&#93;
+  &#40;println &quot;INFO: Starting httpkit server - listening on: &quot; &#40;str &quot;http://&quot; ip &quot;:&quot; port&#41;&#41;
+  &#40;reset! server &#40;server/run-server #'webapp {:port port}&#41;&#41;&#41;
+</code></pre><h2 id="starting&#95;and&#95;stopping&#95;the&#95;server">Starting and stopping the server</h2><p>Specify a specific port when starting the server</p><pre><code class="clojure">&#40;-main :port 8888&#41;
+;; =&gt; &quot;Port: 8888, timeout 100&quot;
+</code></pre><p>Or simply start the server on the default port using <code>&#40;-main&#41;</code></p><p>Stopping the server is easy, just call the <code>stop-server</code> functions without arguments.</p><pre><code class="clojure">&#40;stop-server&#41;
+</code></pre><blockquote><p> It is necessary to stop and start the server when adding dependencies or chaining the main function definition. </p><p> Changes made to the webapp function or anything that function calls can be evaluated to update the REPL, so it is not necessary to stop and starting the web server. </p></blockquote><h2 id="adding&#95;routes&#95;with&#95;compojure">Adding Routes with Compojure</h2><p><code>defroutes</code> function is a macro to provide a simple way to define all the routes.  There is only one <code>defroutes</code> function per web application and all requests recieved by the server go through this function.</p><blockquote><p> A series of nested <code>if</code> functions or the <code>cond</code> function could be used to define routes, although this is not very efficient code. </p></blockquote><p>Each route in defroutes consists of:</p><ul><li>an http method</li><li>URL/URI address</li><li>request map (which can be destructured)</li><li>a handler (or just some content for the body)</li></ul><p>Here is a GET request for the main website page.  This would be the same as a browser requesting the website page.</p><p>A simple piece of html code is used as the response.  This html code is associated with the <code>:body</code> of re response hash-map.</p><pre><code class="clojure">&#40;defroutes webapp
+  &#40;GET &quot;/&quot; &#91;&#93; &quot;&lt;h1&gt;Hello World&lt;/h1&gt;&quot;&#41;&#41;
+</code></pre><p>The resulting response hash-map would look as follows</p><pre><code class="clojure">{:headers {}
+ :status 200
+ :body &quot;&lt;h1&gt;Hello World&lt;/h1&gt;&quot;}
+</code></pre><h3 id="convenience&#95;handlers">Convenience handlers</h3><p>The <code>response</code> function provides a successful response (status 200) that includes the message passed as an argument.</p><p>In deps.edn add the <code>ring.util.response</code> namespace, to give access to the <code>response</code> funciton.</p><pre><code class="clojure"> &#91;ring.util.response :refer &#91;response&#93;&#93;
+</code></pre><p>We can use the <code>response</code> function as part of the <code>defroutes</code>.</p><pre><code class="clojure">&#40;defroutes app
+  &#40;GET &quot;/&quot; &#91;&#93; &#40;response &quot;Hello clojure world&quot;&#41;&#41;
+
+  ,,,&#41;
+</code></pre><p>Or we can include the <code>response</code> call in a separate handler.  A separate handler is more appropriate when there is a notable amount of content included in the message.  For example, if you are using a template for the return message.</p><p>The message forms the value of the :body keyword in the response map, so its quite flexible as to what can be bound to that <code>:body</code> key.</p><pre><code class="clojure">&#40;defn hello-world
+  &quot;A simple hello world handler,
+  using ring.util.response&quot;
+  &#91;request&#93;
+  &#40;response &quot;hello clojure world, from ring response.&quot;&#41;&#41;
+</code></pre><p>In the REPL we can call this function to see what its returning</p><pre><code class="clojure">&#40;hello-world {}&#41;
+;; =&gt; {:status 200, :headers {}, :body &quot;Hello Clojure World, from ring response.&quot;}
+</code></pre><p>If no route matches the incoming request, then the browser will display its own error page.</p><p>Using the <code>not-found</code> function from <code>compojure.route</code> a custom error message can be returned instead.</p><pre><code class="clojure">&#40;defroutes webapp
+  &#40;route/not-found &quot;&lt;h1&gt;I am very sorry, but the page you asked for does not exist.&lt;/h1&gt;&quot;&#41;
+  &#41;
+</code></pre><p>Using handlers rather than just returning text</p><pre><code class="clojure">
+&#40;defroutes webapp
+  &#40;GET &quot;/&quot;               &#91;&#93; hello-html&#41;
+  &#40;GET &quot;/hello-response&quot; &#91;&#93; hello-world&#41;
+
+  &#40;not-found &quot;&lt;h1&gt;Page not found, I am very sorry.&lt;/h1&gt;&quot;&#41;&#41;
+</code></pre><pre><code class="clojure">&#40;defn hello-world
+  &quot;A simple hello world handler,
+  using ring.util.response&quot;
+  &#91;&#95;&#93;
+  &#40;response &quot;Hello Clojure World, from ring response.&quot;&#41;&#41;
+
+</code></pre><p>Calling the <code>hello-world</code> function with an empty request hash-map, <code>{}</code> we can see the response hash-map this handler function returns</p><pre><code class="clojure">&#40;hello-world {}&#41;
+;; =&gt; {:status 200, :headers {}, :body &quot;Hello Clojure World, from ring response.&quot;}
+</code></pre><h3 id="viewing&#95;the&#95;full&#95;request&#95;information">Viewing the full Request information</h3><p>Compojure has a request dump function that gives a much nicer output than our initial request-info function. The dump funtion also seperates the default response keys with any additional keys provided by the URL.</p><pre><code class="clojure">&#40;:require
+          &#91;ring.handler.dump :refer &#91;handle-dump&#93;&#93;&#41;
+</code></pre><p>Add a route that calls the <code>handle-dump</code> functions</p><pre><code class="clojure">&#40;GET &quot;/request-info&quot; &#91;&#93; handle-dump&#41;
+</code></pre><h2 id="generating&#95;json&#95;from&#95;clojure">Generating JSON from Clojure</h2><p><a href='https://github.com/clojure/data.json'><code>clojure/data.json</code></a> is a library for translating between Clojure data structures and the JavaScript Object Notation <code>JSON</code></p><p>Clojure hash-maps and vectors can be used to create a detailed data structure that can be converted into JSON.</p><p>Add the data.json library as a dependency in the <code>deps.edn</code> file.</p><pre><code class="clojure"> org.clojure/data.json {:mvn/version &quot;0.2.7&quot;}
+</code></pre><p>Then require clojure.data.json namespace in the <code>ns</code> declaration.</p><pre><code class="clojure">&#40;ns example
+  &#40;:require &#91;clojure.data.json :as json&#93;&#41;&#41;
+</code></pre><p>To convert to/from JSON strings, use <code>json/write-str</code> and <code>json/read-str</code> functions.</p><pre><code class="clojure">&#40;json/write-str {:a 1 :b 2}&#41;
+;;=&gt; &quot;{\&quot;a\&quot;:1,\&quot;b\&quot;:2}&quot;
+
+&#40;json/read-str &quot;{\&quot;a\&quot;:1,\&quot;b\&quot;:2}&quot;&#41;
+;;=&gt; {&quot;a&quot; 1, &quot;b&quot; 2}
+</code></pre><p>Converting Clojure data into JSON is lossy as you loose some of the type information.</p><p>Other approaches include</p><ul><li><a href='https://github.com/ring-clojure/ring-json'>ring-json</a> for handling JSON requests and responses</li><li><a href='https://github.com/weavejester/ring-json-response'>ring-json-response</a> for returning JSON responses from a ring handler</li></ul><h2 id="creating&#95;a&#95;json&#95;api">Creating a JSON API</h2><p>Returning JSON from APIs is a common approach as JSON is a very lightweight data format that is supported by many languages.  So JSON is usually very simple when it comes to data integration.</p><p>Add a scores routes that returns JSON, specifying the appropriate content type.</p><pre><code class="clojure">&#40;defn scores
+  &quot;Returns the current scoreboard as JSON&quot;
+  &#91;&#95;&#93;
+  &#40;println &quot;Calling the scoreboard handler...&quot;&#41;
+  {:headers {&quot;Content-type&quot; &quot;application/json&quot;}
+   :status  &#40;:OK http-status-codes&#41;
+   :body    &#40;json/write-str {:players
+                             &#91;{:name &quot;johnny-be-doomed&quot; :high-score 1000001}
+                              {:name &quot;jenny-jetpack&quot; :high-score 23452345}&#93;}&#41;}&#41;
+</code></pre><p>This will return JSON in our browser</p><p><img src="/blog/images/clojure-webapp-api-json-results-scoreboard.png" alt="Clojure Webapps - JSON from an API" /></p><h2 id="defining&#95;a&#95;data&#95;model">Defining a data model</h2><p>Assuming we use the data in several handler functions, we should define that data separately and refer to it by name.</p><pre><code class="clojure">&#40;def scoreboard
+  {:players
+   &#91;{:name &quot;johnny-be-doomed&quot; :high-score 1000001}
+    {:name &quot;jenny-jetpack&quot; :high-score 23452345}
+    {:name &quot;fred&quot; :high-score 23452345}&#93;}&#41;
+</code></pre><h2 id="specific&#95;player&#95;score&#95;with&#95;url&#95;parameters">Specific player score with URL parameters</h2><p>To get the score for just a single player, use <a href='https://practicalli.github.io/clojure-webapps/compojure/variable-path-elements.html'>variable path elements</a> as part of the request address.</p><p>To get a specific players name, add the <code>:name</code> element.</p><pre><code class="clojure">&#40;defroutes webapp
+
+  &#40;GET &quot;/hello/:name&quot; &#91;&#93; player-score&#41;
+
+  &#41;
+</code></pre><h2 id="define&#95;a&#95;player-score&#95;handler&#95;function">Define a player-score handler function</h2><p>Define a <code>player-score</code> handler function that only returns the score for a particular player.</p><p>To get the name of the player from the request hash-map, we can use <code>get-in</code> to walk the request hash-map.  The player name will be in <code>{:route-params {:name &quot;player-name&quot;}}</code></p><pre><code class="clojure">&#40;get-in request &#91;:route-params :name&#93;&#41;
+</code></pre><p>To get the score for a particular player, we filter the scoreboard data structure by the name of the player.  For example, if we wanted the score for the player <code>&quot;fred&quot;</code>:</p><pre><code class="clojure">&#40;filter &#40;fn &#91;player-entry&#93;
+          &#40;= &quot;fred&quot; &#40;:name player-entry&#41;&#41;&#41;
+        &#40;get scoreboard :players&#41;&#41;
+</code></pre><p>We can use these expressions to build our <code>player-score</code> handler.</p><pre><code class="clojure">&#40;defn player-score
+  &quot;Returns the current scoreboard as JSON&quot;
+  &#91;request&#93;
+  &#40;println &quot;Calling the player handler...&quot;&#41;
+  &#40;let &#91;player &#40;get-in request &#91;:route-params :name&#93;&#41;&#93;
+    {:headers {&quot;Content-type&quot; &quot;application/json&quot;}
+     :status  &#40;:OK http-status-codes&#41;
+     :body    &#40;json/write-str
+                &#40;filter &#40;fn &#91;player-entry&#93;
+                          &#40;= player &#40;:name player-entry&#41;&#41;&#41;
+                        &#40;get scoreboard :players&#41;&#41;&#41;}&#41;&#41;
+</code></pre><p>Now we can call our scoreboard api with a specific player name, for example http://localhost:8000/player/:jenny-jetpack and just their scores are returned.</p><p>If there are going to be multiple scores, then we could sort them first using <code>sort-by :high-score dec</code> on the results of <code>filter</code> to give a list of score entries with the highest score first.</p><p>Or we could leave it to the client to process the scores in what ever way they wish.</p><h2 id="summary">Summary</h2><p>Taking the simple web server and adding Compojure allows us to quickly build a web application or API.</p><p>Generating JSON from Clojure data structures is very easy.  Converting JSON into Clojure data structures is just as easy and provides a more efficient way of working with any data recieved in JSON format.</p><p>There are several libraries for transforming between JSON and Clojure, including <a href='https://github.com/dakrone/cheshire'>Cheshire</a>, <a href='https://github.com/metosin/jsonista'>jsonista</a> and Transit.</p><ul><li><a href='https://purelyfunctional.tv/mini-guide/json-serialization-api-clojure/'>JSON Serialization for APIs in Clojure</a></li></ul><p>Adding specifications is a clean way to ensure a robust API service, checking the type of information being sent and received is of the correct form. <code>clojure.alpha.spec</code> and <code>pulmatic/schema</code> are two libraries that will provide this kind of checking.</p><p><a href='https://github.com/seancorfield/usermanager-example'>Sean Corfield has a usermanager project</a> that is a nice example of a project using deps.edn, ring, compojure, selma for web page templates and Component for life-cycle management (starting and stoping services).</p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/json/">json</a>
+    
+    <a href="/blog/tags/webapps/">webapps</a>
+    
+    <a href="/blog/tags/clojure-cli/">clojure-cli</a>
+    
+    <a href="/blog/tags/tools-deps/">tools-deps</a>
+    
+    <a href="/blog/tags/apis/">apis</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/consuming-apis-with-clojure/">&laquo; Consuming APIs from Clojure</a>
+        
+        
+        <a class="right" href="/blog/posts/clojure-web-server-cli-tools-deps-edn/">Clojure web server from scratch with deps.edn &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/webapp-routes-with-json/";
+            this.page.identifier = "Clojure Webapp routing and APIs with JSON";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

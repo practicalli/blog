@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Practicalli: Streamline Contributions with GitHub Pull Request Templates</title>
+    <link rel="canonical" href="http://practical.li/blog/posts/streamline-contributions-with-github-pull-request-templates/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/blog/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/blog/">
+              <img src="/blog//images/practicalli-logo-name.png" alt="Practicalli logo" />
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/blog/">Home</a></li>
+                <li
+                ><a href="/blog/archives/">Archives</a></li>
+                
+                <li
+                >
+                <a href="/blog/pages/about/">About</a>
+                </li>
+                
+                <li><a href="/blog/feed.xml">RSS</a></li>
+                <li><a href="https://github.com/practicalli/blog-content/projects/1">Feedback</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">5 November 2019</div>
+        
+    </div>
+    <h2>Streamline Contributions with GitHub Pull Request Templates</h2>
+
+    <!-- conditional topic logo displayed if :topic has value in a post -->
+    
+    <img class="topic" src="/blog/images/github-logo-name.png" alt="github logo" />
+    
+</div>
+<div>
+    
+    <p>Pull requests are very valuable to project maintainers, especially if they follow guidelines for the project.  Using a pull request template allows project maintainers to define the most effective way to contribute right inside the contribution projects.</p><p>Project maintainers, especially on very active projects, rarely have time to spend on triage of pull requests.  Generally the simpler a pull request the easier it is for a maintainer to review it and accept it.</p><p>Previously we created GitHub issue templates, for which their can be many.  one pull request template as all pull requests are the same type.</p><p>We will discuss what to include in these pull request templates and use GitHub as an example of how to create them.</p><h2 id="what&#95;to&#95;put&#95;in&#95;a&#95;pull&#95;request&#95;template">What to put in a pull request template</h2><p>Guidelines that are important to you as a maintainer should go in the template, especially on open source projects where you have a very diverse audience.</p><ul><li>coding style and formatting rules the project follows</li><li>license used for contributions</li><li>the pull request review process (or link to it)</li><li>the scale of changes preferred (usually very small and specific)</li></ul><p>Define specific content that any pull request should include to make it worth reviewing</p><ul><li>referring to one or more related issues</li><li>a meaningful description of the proposed change the pull request proposes</li><li>a single commit</li><li>mention a specific GitHub user using the <code>@</code> character followed by the users name</li></ul><p>Look at the examples towards the end of this article for inspiration.</p><blockquote><p> Mentioning different maintainers when you have multiple pull request templates can help deligate work automatically and reduce the amount of triage to be done on a pull request. </p><p> Even with a single pull request template, you may wish to have yourself mentioned to receive a notification for each pull request. </p><p> Automation of mentions (and other metadata) is done <a href='https://help.github.com/en/github/managing-your-work-on-github/about-automation-for-issues-and-pull-requests-with-query-parameters'>using query parameters with issues and pull requests</a>. </p></blockquote><h2 id="single&#95;or&#95;multiple&#95;pull&#95;request&#95;templates">Single or multiple pull request templates</h2><p>GitHub defines <a href='https://help.github.com/en/github/building-a-strong-community/creating-a-pull-request-template-for-your-repository'>several locations where you can add a pull request template</a>, in the root of the project, in <code>/docs</code> or in the hidden directory <code>.github</code>.  GitHub will look in each of these locations for a template.</p><p>I recommend using <code>.github</code> as the base location for your templates as this is where the GitHub template editor saves <a href='improving-communication-with-github-issue-templates.md'>issue templates</a>.</p><ul><li><code>.github/pull&#95;request&#95;template.md</code> - for a single pull request template</li><li><code>.github/PULL&#95;REQUEST&#95;TEMPLATE/one&#95;of&#95;many&#95;template.md</code> - for multiple templates, each with a unique name.</li></ul><h2 id="add&#95;template&#95;to&#95;local&#95;project">Add template to local project</h2><p>Create a template file in your favourite editor and save it to <code>.github/pull&#95;request&#95;template.md</code>.</p><p>Commit this file into your local repository, to the default branch set in GitHub.  You must use the default GitHub branch or the template will not be visible.</p><p><img src="/blog/images/github-templates-repository-default-branch.png" alt="GitHub templates - repository default branch" /></p><h2 id="add&#95;a&#95;template&#95;using&#95;github">Add a template using GitHub</h2><p>Unlike issue templates, there is no specific editor for pull request templates (at time of writing), so just use the generic <strong>Create new file</strong> editor.</p><p>Select <strong>Create new file</strong> button to open a file editor.</p><p>Update the file name to <code>.github/pull&#95;request&#95;template.md</code>.</p><p><img src="/blog/images/github-templates-pull-request-edit-new-file.png" alt="GitHub templates - pull request - edit new file" /></p><p>Add the information you wish to add to the pull request template and commit the file.</p><p><img src="/blog/images/github-templates-pull-request-new-file-commit.png" alt="GitHub templates - pull request - edit new file" /></p><p>entering a commit message and click the <strong>Commit new file</strong> button to add the template to the repository.</p><p><img src="/blog/images/github-templates-create-new-file-commit.png" alt="GitHub templates - commit new template" /></p><h2 id="creating&#95;a&#95;pull&#95;request&#95;with&#95;a&#95;template">Creating a pull request with a template</h2><p>Every time a new pull request is created, the default template is shown.</p><p>The issue has the article label and the text of the template, making it simple for a contributor to add information that helps the project maintainer.</p><p>![GitHub templates - new issue with article template - edit](/images/github-templates-new-issue-article-template-edit.png**</p><p>A contributor can always choose a different type of issue template before submitting the issue.</p><h2 id="example&#95;pull&#95;request&#95;templates">Example Pull Request templates</h2><p><strong>Clojure Website</strong></p><p>The Clojure website repository has quite a simple template, reminding you of just a few essentials</p><pre><code class="markdown"><ul><li>&#91; x&#93; Have you read the &#91;guidelines for contributing&#93;&#40;https://clojure.org/community/contributing&#95;site&#41;?- &#91; x&#93; Have you signed the Clojure Contributor Agreement?
+- &#91; x&#93; Have you verified your asciidoc markup is correct?
+</code></pre></li></ul><p><strong>Practicalli</strong></p><p>The <a href='https://github.com/practicalli/blog-content/blob/master/.github/pull_request_template.md'>pull request template used by Practicalli</a> is quite detailed and encourages very specific pull requests, so I minimise time doing triage on those pull requests (as I prefer to just create content).</p><pre><code class="markdown">Please follow these guidelines when submitting a pull request
+
+<ul><li>refer to all relevant issues, using `#` followed by the issue number &#40;or paste full link to the issue&#41;- PR should contain the smallest possible change
+- PR should contain a very specific change
+- PR should contain only a single commit &#40;squash your commits locally if required&#41;
+- Avoid multiple changes across multiple files &#40;raise an issue so we can discuss&#41;
+- Avoid a long list of spelling or grammar corrections.  These take too long to review and cherry pick.
+
+</li></ul>
+## Submitting articles
+&#91;Create an issue using the article template&#93;&#40;https://github.com/practicalli/blog-content/issues/new?assignees=&amp;labels=article&amp;template=article.md&amp;title=Suggested+article+title&#41;,
+providing as much detail as possible.
+
+## Website design
+Suggestions about website design changes are most welcome, especially in terms of usability and accessibility.
+
+Please raise an issue so we can discuss changes first, especially changes related to aesthetics.
+
+
+## Review process
+All pull requests are reviewed by @jr0cket and feedback provided, usually the same day but please be patient.
+</code></pre><h2 id="summary">Summary</h2><p>Adding Issue templates is really easy and saves a lot of time getting the basics of communication established between contributors and project maintainers.</p><p>Templates minimise the amount of work a project maintainer has to do for each issue and also supports contributors involvement be much more efficient.</p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/blog/tags/github/">github</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/blog/posts/clojure-web-server-cli-tools-deps-edn/">&laquo; Clojure web server from scratch with deps.edn</a>
+        
+        
+        <a class="right" href="/blog/posts/improving-communication-with-github-issue-templates/">Improving communication with GitHub issue templates &raquo;</a>
+        
+    </div>
+
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_config = function () {
+            this.page.url = "http://practical.li/blog/posts/streamline-contributions-with-github-pull-request-templates/";
+            this.page.identifier = "Streamline Contributions with GitHub Pull Request Templates";
+        };
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//practicalli-blog.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <li><a href="http://practical.li/">Practicalli Home</a></li>
+                    <li><a href="http://yt.vu/+practicalli">YouTube channel</a></li>
+                    <li><a href="https://github.com/practicalli/blog-content/projects/1">Feeback / Issues</a></li>
+                    
+                    <li><a href="/blog/pages/contributing/">Contributing</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/posts/overview-of-language-server-protocol-lsp-for-clojure-development/">Overview of Language Server Protocol LSP for Clojure development</a></li>
+                        
+                        <li><a href="/blog/posts/brave-clojure-redux-part01-the-repl/">Brave Clojure redux - part 1 - the REPL</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-repl-jack-in-or-connect/">Clojure CLI tools - To jack-in or connect, that is the question</a></li>
+                        
+                        <li><a href="/blog/posts/clojure-cli-aliases-deserve-designing-too/">Clojure CLI tools aliases deserve good design too</a></li>
+                        
+                        <li><a href="/blog/posts/cloure-community-getting-help/">Clojure community - getting help</a></li>
+                        
+                        <li><a href="/blog/posts/a-deeper-understanding-of-oz-data-visualization/">A deeper understanding of data visualization Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/visualising-uk-covid19-data-with-oz/">Visualising UK Covid19 data with Clojure and Oz</a></li>
+                        
+                        <li><a href="/blog/posts/web-scraping-with-clojure-hacking-hacker-news/">Web Scraping with Clojure - Scraping Hacker News</a></li>
+                        
+                        <li><a href="/blog/posts/raising-spacemacs-issues-and-pull-requests/">Spacemacs - raising issues and pull requests</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/blog/tags/json/">json</a></li>
+                        
+                        <li><a href="/blog/tags/ring/">ring</a></li>
+                        
+                        <li><a href="/blog/tags/very fetch/">very fetch</a></li>
+                        
+                        <li><a href="/blog/tags/ubuntu/">ubuntu</a></li>
+                        
+                        <li><a href="/blog/tags/lsp/">lsp</a></li>
+                        
+                        <li><a href="/blog/tags/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/blog/tags/aliases/">aliases</a></li>
+                        
+                        <li><a href="/blog/tags/challenges/">challenges</a></li>
+                        
+                        <li><a href="/blog/tags/github/">github</a></li>
+                        
+                        <li><a href="/blog/tags/clojure/">clojure</a></li>
+                        
+                        <li><a href="/blog/tags/httpkit/">httpkit</a></li>
+                        
+                        <li><a href="/blog/tags/webapps/">webapps</a></li>
+                        
+                        <li><a href="/blog/tags/clojure-cli/">clojure-cli</a></li>
+                        
+                        <li><a href="/blog/tags/data-science/">data-science</a></li>
+                        
+                        <li><a href="/blog/tags/pull-requests/">pull-requests</a></li>
+                        
+                        <li><a href="/blog/tags/editors/">editors</a></li>
+                        
+                        <li><a href="/blog/tags/oz/">oz</a></li>
+                        
+                        <li><a href="/blog/tags/tools-deps/">tools-deps</a></li>
+                        
+                        <li><a href="/blog/tags/hardware/">hardware</a></li>
+                        
+                        <li><a href="/blog/tags/cider/">cider</a></li>
+                        
+                        <li><a href="/blog/tags/emacs/">emacs</a></li>
+                        
+                        <li><a href="/blog/tags/clj-http/">clj-http</a></li>
+                        
+                        <li><a href="/blog/tags/calva/">calva</a></li>
+                        
+                        <li><a href="/blog/tags/thinkpad/">thinkpad</a></li>
+                        
+                        <li><a href="/blog/tags/events/">events</a></li>
+                        
+                        <li><a href="/blog/tags/community/">community</a></li>
+                        
+                        <li><a href="/blog/tags/advent-of-parens/">advent-of-parens</a></li>
+                        
+                        <li><a href="/blog/tags/spacemacs/">spacemacs</a></li>
+                        
+                        <li><a href="/blog/tags/help/">help</a></li>
+                        
+                        <li><a href="/blog/tags/lenovo/">lenovo</a></li>
+                        
+                        <li><a href="/blog/tags/compojure/">compojure</a></li>
+                        
+                        <li><a href="/blog/tags/klipse/">klipse</a></li>
+                        
+                        <li><a href="/blog/tags/figwheel-main/">figwheel-main</a></li>
+                        
+                        <li><a href="/blog/tags/not fetch/">not fetch</a></li>
+                        
+                        <li><a href="/blog/tags/web-scraper/">web-scraper</a></li>
+                        
+                        <li><a href="/blog/tags/blogging/">blogging</a></li>
+                        
+                        <li><a href="/blog/tags/conjure/">conjure</a></li>
+                        
+                        <li><a href="/blog/tags/apis/">apis</a></li>
+                        
+                        <li><a href="/blog/tags/static-sites/">static-sites</a></li>
+                        
+                        <li><a href="/blog/tags/re-clojure/">re-clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>
+      Copyright &copy; 2021 Practicalli
+      <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p>
+
+      <license id="license">
+        <div>
+          <p>This work is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution 4.0 ShareAlike License</a>, including custom images & stylesheets.</p>
+          <p>Permissions beyond the scope of this license may be available by contacting <a xmlns:cc="http://creativecommons.org/ns#" href="https://twitter.com/practical_li" rel="cc:morePermissions">@practical_li</a></p>
+          <br>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
+        </div>
+      </license>
+
+    </footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/blog/js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>
